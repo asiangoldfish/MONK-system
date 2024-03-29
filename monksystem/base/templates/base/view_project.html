@@ -8,7 +8,7 @@
 
     {% if projects %}
         {% for project in projects %}
-        <div class="card mb-3">
+        <div class="card mb-5">
             {% if request.user.doctor in project.doctors.all %}
                 <a href="{% url 'project' project.id %}" class="card-header bg-primary text-white d-block" style="text-decoration: none;">
                     <i class="bi bi-briefcase-fill" style="margin-right: 10px;"></i>

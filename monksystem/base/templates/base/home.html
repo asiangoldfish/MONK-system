@@ -44,13 +44,6 @@
         </div>
     {% endif %}
     
-    <div class="mt-4 d-flex justify-content-center">
-        <form method="post" enctype="multipart/form-data" action="{% url 'upload_file' %}" class="w-50">
-            {% csrf_token %}
-            <input type="submit" value="Upload File" class="btn btn-primary btn-lg btn-block">
-        </form>
-    </div>
-
 
 </div>
 {% endblock %}

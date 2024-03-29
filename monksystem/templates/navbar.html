@@ -32,26 +32,26 @@ $(document).ready(function() {
     <div class="collapse navbar-collapse" id="myMenu">
         <ul class="navbar-nav mr-auto">
             {% if request.user.is_authenticated %}
+
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Project</a>
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Files</a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{% url 'upload_file' %}">Upload file</a>
+                    <a class="dropdown-item" href="{% url 'home' %}">View file</a>
+                </div>
+            </li>
+
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Projects</a>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="{% url 'addProject' %}">Add Project</a>
                     <a class="dropdown-item" href="{% url 'viewProject' %}">View Project</a>
                 </div>
             </li>
-            
-            <!--
+    
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Doctor</a>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{% url 'addDoctor' %}">Add Doctor</a>
-                    <a class="dropdown-item" href="{% url 'viewDoctor' %}">View Doctor</a>
-                </div>
-            </li>
-            -->
-
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Patient</a>
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Patients</a>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="{% url 'addPatient' %}">Add Patient</a>
                     <a class="dropdown-item" href="{% url 'viewPatient' %}">View Patient</a>
