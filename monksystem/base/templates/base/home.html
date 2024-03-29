@@ -12,16 +12,13 @@
                 {% with file.fileclaim_set.first as claim %}
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card h-100 shadow-sm">
-                        <!-- Adjusted card header with icons -->
                         {% if claim and claim.doctor.user == user %}
                             <a href="{% url 'file' file.id %}" class="card-header bg-primary text-white d-block" style="text-decoration: none; font-size: 1.25rem;">
-                                <!-- Include icon within the clickable area -->
                                 <i class="bi bi-file-earmark-text" style="margin-right: 10px;"></i>
                                 <strong>{{ file.title }}</strong>
                             </a>
                         {% else %}
                             <div class="card-header bg-primary text-white d-block" style="font-size: 1.25rem;">
-                                <!-- Icon for non-clickable titles -->
                                 <i class="bi bi-file-earmark-text" style="margin-right: 10px;"></i>
                                 <strong>{{ file.title }}</strong>
                             </div>
@@ -47,7 +44,6 @@
         </div>
     {% endif %}
     
-        <!-- Adjusted Upload button section with a wider button -->
     <div class="mt-4 d-flex justify-content-center">
         <form method="post" enctype="multipart/form-data" action="{% url 'upload_file' %}" class="w-50">
             {% csrf_token %}

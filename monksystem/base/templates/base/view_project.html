@@ -6,25 +6,28 @@
 <div class="container mt-5">
     <h2 class="text-center mb-4">View Projects</h2>
 
-    <!-- Check if the doctor is associated with any projects -->
     {% if projects %}
         {% for project in projects %}
         <div class="card mb-3">
-            <div class="card-header">
-                {% if request.user.doctor in project.doctors.all %}
-                    <a href="{% url 'project' project.id %}"><strong>Project: {{ project.rekNummer }}</strong></a>
-                {% else %}
-                    <span><strong>Project: {{ project.rekNummer }}</strong></span>
-                {% endif %}
-            </div>
+            {% if request.user.doctor in project.doctors.all %}
+                <a href="{% url 'project' project.id %}" class="card-header bg-primary text-white d-block" style="text-decoration: none;">
+                    <i class="bi bi-briefcase-fill" style="margin-right: 10px;"></i>
+                    <strong>Project: {{ project.rekNummer }}</strong>
+                </a>
+            {% else %}
+                <div class="card-header bg-primary text-white d-block">
+                    <i class="bi bi-briefcase-fill" style="margin-right: 10px;"></i>
+                    <strong>Project: {{ project.rekNummer }}</strong>
+                </div>
+            {% endif %}
             <div class="card-body">
-                <p class="card-text"><strong>Doctors involved:</strong></p>
+                <p class="card-text"><strong><i class="bi bi-person-badge-fill"></i> Doctors involved:</strong></p>
                 <div class="row">
                     {% for doctor in project.doctors.all %}
                     <div class="col-md-4 mb-3">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">{{ doctor.name }}</h5>
+                                <h5 class="card-title"><i class="bi bi-person-circle"></i> {{ doctor.name }}</h5>
                                 <p class="card-text">Specialization: {{ doctor.specialization }}</p>
                                 <p class="card-text">Contact: {{ doctor.mobile }}</p>
                                 <a href="{% url 'doctor' doctor.id %}" class="btn btn-primary">View Doctor</a>
@@ -38,13 +41,13 @@
                     {% endfor %}
                 </div>
 
-                <p class="card-text"><strong>Patients involved:</strong></p>
+                <p class="card-text"><strong><i class="bi bi-people-fill"></i> Patients involved:</strong></p>
                 <div class="row">
                     {% for patient in project.patients.all %}
                     <div class="col-md-4 mb-3">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">{{ patient.name }}</h5>
+                                <h5 class="card-title"><i class="bi bi-person-lines-fill"></i> {{ patient.name }}</h5>
                                 <p class="card-text">Gender: {{ patient.gender }}</p>
                                 {% if request.user.doctor in project.doctors.all %}
                                     <a href="{% url 'patient' patient.patient_id %}" class="btn btn-primary">View Patient</a>
@@ -64,7 +67,6 @@
         </div>
         {% endfor %}
     {% else %}
-        <!-- Display a message if the doctor is not associated with any projects -->
         <div class="alert alert-info" role="alert">
             You are not part of any projects.
         </div>
