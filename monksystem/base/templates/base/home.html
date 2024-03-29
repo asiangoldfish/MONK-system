@@ -1,60 +1,60 @@
 {% extends 'main.html' %}
 
+{% load static %}
+
 {% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-5">Nihon Kohden Files</h2>
 
-<div class="container" style="margin-top:50px">
-    <h2 class="text-center">Nihon Kohden Files</h2>
-    <br>
-
-    <div class="row">
-        <div class="col">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>File ID</th>
-                        <th>Title</th>
-                        <th>Claimed By</th>
-                        <th>Claimed At</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for file in files %}
-                    <tr>
-                        {% with file.fileclaim_set.first as claim %}
-                            {% if claim and claim.doctor.user == user %}
-                                <td><a href="{% url 'file' file.id %}">{{ file.id }}</a></td>
-                            {% else %}
-                                <td>{{ file.id }}</td>
-                            {% endif %}
-                            <td>{{ file.title }}</td>
+    {% if files %}
+        <div class="row">
+            {% for file in files %}
+                {% with file.fileclaim_set.first as claim %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <!-- Adjusted card header with icons -->
+                        {% if claim and claim.doctor.user == user %}
+                            <a href="{% url 'file' file.id %}" class="card-header bg-primary text-white d-block" style="text-decoration: none; font-size: 1.25rem;">
+                                <!-- Include icon within the clickable area -->
+                                <i class="bi bi-file-earmark-text" style="margin-right: 10px;"></i>
+                                <strong>{{ file.title }}</strong>
+                            </a>
+                        {% else %}
+                            <div class="card-header bg-primary text-white d-block" style="font-size: 1.25rem;">
+                                <!-- Icon for non-clickable titles -->
+                                <i class="bi bi-file-earmark-text" style="margin-right: 10px;"></i>
+                                <strong>{{ file.title }}</strong>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
                             {% if claim %}
-                                <td><a href="{% url 'doctor' claim.doctor.id %}">{{ claim.doctor.name }}</a></td>
-                                <td>{{ claim.claimed_at|date:"Y-m-d H:i" }}</td>
-                                <td>Already Claimed</td>
+                                <p class="card-text"><i class="bi bi-person-check-fill"></i> Claimed By: <a href="{% url 'doctor' claim.doctor.id %}">{{ claim.doctor.name }}</a></p>
+                                <p class="card-text"><i class="bi bi-clock-fill"></i> Claimed At: {{ claim.claimed_at|date:"Y-m-d H:i" }}</p>
+                                <button class="btn btn-secondary btn-sm" disabled><i class="bi bi-x-circle-fill"></i> Already Claimed</button>
                             {% else %}
-                                <td>Not Claimed</td>
-                                <td>N/A</td>
-                                <td><a href="{% url 'claim_file' file.id %}" class="btn btn-primary">Claim</a></td>
+                                <p class="card-text">Status: <span class="text-muted">Not Claimed</span></p>
+                                <a href="{% url 'claim_file' file.id %}" class="btn btn-success btn-sm"><i class="bi bi-check-circle-fill"></i> Claim</a>
                             {% endif %}
-                        {% endwith %}
-                    </tr>
-                {% endfor %}
-                
-                </tbody>
-            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endwith %}
+            {% endfor %}
         </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <!-- File upload form aligned to the bottom-left -->
-            <form method="post" enctype="multipart/form-data" action="{% url 'upload_file' %}" style="width: fit-content;">
-                {% csrf_token %}
-                <input type="submit" value="Import file" class="btn btn-secondary mt-2">
-            </form>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            No files to display.
         </div>
+    {% endif %}
+    
+        <!-- Adjusted Upload button section with a wider button -->
+    <div class="mt-4 d-flex justify-content-center">
+        <form method="post" enctype="multipart/form-data" action="{% url 'upload_file' %}" class="w-50">
+            {% csrf_token %}
+            <input type="submit" value="Upload File" class="btn btn-primary btn-lg btn-block">
+        </form>
     </div>
-</div>
 
+
+</div>
 {% endblock %}
