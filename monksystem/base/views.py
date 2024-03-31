@@ -184,6 +184,16 @@ def viewProject(request):
     return render(request, 'base/view_project.html', context)
     
 
+
+@login_required
+def viewFile(request):
+    
+    files = File.objects.all()
+    
+    context = {'files' : files}
+    return render(request,'base/view_file.html', context)
+
+
 @login_required
 def viewVitals(request):
     
@@ -277,14 +287,14 @@ def home(request):
 
 
 @login_required
-def upload_file(request):
+def uploadFile(request):
     form = FileForm()
     if request.method == 'POST' and 'submitted' in request.POST:
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, "File uploaded successfully.")
-            return redirect('home')
+            return redirect('viewFile')
         else:
             # Check explicitly for empty title or file when the form is submitted
             if not request.FILES.get('file') or not request.POST.get('title'):
@@ -297,20 +307,20 @@ def upload_file(request):
 
 
 @login_required
-def claim_file(request, file_id):
+def claimFile(request, file_id):
     # Attempt to claim the file
     file_to_claim = get_object_or_404(File, id=file_id)
 
     # Check if the file has already been claimed
     if FileClaim.objects.filter(file=file_to_claim).exists():
         messages.error(request, "This file has already been claimed.")
-        return redirect('home')
+        return redirect('viewFile')
 
     try:
         doctor = request.user.doctor
     except Doctor.DoesNotExist:
         messages.error(request, "You are not registered as a doctor. Only doctors can claim files.")
-        return redirect('home')
+        return redirect('viewFile')
 
     # Proceed with claiming the file
     FileClaim.objects.create(doctor=doctor, file=file_to_claim)
@@ -356,11 +366,11 @@ def claim_file(request, file_id):
         messages.error(request, "Unsupported file format. Only .MWF files are accepted.")
 
     # Redirect back to the home page
-    return redirect('home')
+    return redirect('viewFile')
 
 
 @login_required
-def import_files(request):
+def importFiles(request):
     # Build the directory path dynamically using BASE_DIR
     directory_path = Path(settings.BASE_DIR) / "nihon_kohden_files"
     files_imported = False

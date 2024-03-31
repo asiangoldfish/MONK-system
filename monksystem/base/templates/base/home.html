@@ -3,47 +3,66 @@
 {% load static %}
 
 {% block content %}
+
 <div class="container mt-5">
-    <h2 class="text-center mb-5">Nihon Kohden Files</h2>
 
-    {% if files %}
-        <div class="row">
-            {% for file in files %}
-                {% with file.fileclaim_set.first as claim %}
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        {% if claim and claim.doctor.user == user %}
-                            <a href="{% url 'file' file.id %}" class="card-header bg-primary text-white d-block" style="text-decoration: none; font-size: 1.25rem;">
-                                <i class="bi bi-file-earmark-text" style="margin-right: 10px;"></i>
-                                <strong>{{ file.title }}</strong>
-                            </a>
-                        {% else %}
-                            <div class="card-header bg-primary text-white d-block" style="font-size: 1.25rem;">
-                                <i class="bi bi-file-earmark-text" style="margin-right: 10px;"></i>
-                                <strong>{{ file.title }}</strong>
-                            </div>
-                        {% endif %}
-                        <div class="card-body">
-                            {% if claim %}
-                                <p class="card-text"><i class="bi bi-person-check-fill"></i> Claimed By: <a href="{% url 'doctor' claim.doctor.id %}">{{ claim.doctor.name }}</a></p>
-                                <p class="card-text"><i class="bi bi-clock-fill"></i> Claimed At: {{ claim.claimed_at|date:"Y-m-d H:i" }}</p>
-                                <button class="btn btn-secondary btn-sm" disabled><i class="bi bi-x-circle-fill"></i> Already Claimed</button>
-                            {% else %}
-                                <p class="card-text">Status: <span class="text-muted">Not Claimed</span></p>
-                                <a href="{% url 'claim_file' file.id %}" class="btn btn-success btn-sm"><i class="bi bi-check-circle-fill"></i> Claim</a>
-                            {% endif %}
-                        </div>
-                    </div>
+    <div class="jumbotron text-center bg-primary text-white">
+        <h1>Welcome to Our HealthCare System</h1>
+        <p>Providing compassionate care and comprehensive services to our community.</p>
+    </div>
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8">
+            <h2 class="text-center mb-3">Our Mission</h2>
+            <p class="text-center">At HealthCare System, our mission is to improve the health and well-being of our patients through comprehensive, quality care and personalized service. We are committed to excellence in all we do, from our medical services to our patient experiences.</p>
+        </div>
+    </div>
+
+    <div class="row text-center">
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="card-title">View Files</h3>
+                    <p class="card-text">Access and manage patient files and records.</p>
+                    <a href="{% url 'viewFile' %}" class="btn btn-primary">Explore</a>
                 </div>
-                {% endwith %}
-            {% endfor %}
+            </div>
         </div>
-    {% else %}
-        <div class="alert alert-info" role="alert">
-            No files to display.
-        </div>
-    {% endif %}
-    
 
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="card-title">View Projects</h3>
+                    <p class="card-text">Discover our ongoing projects.</p>
+                    <a href="{% url 'viewProject' %}" class="btn btn-primary">Explore</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="card-title">View Patients</h3>
+                    <p class="card-text">Learn more about our patients and their experiences.</p>
+                    <a href="{% url 'viewPatient' %}" class="btn btn-primary">Explore</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="card-title">View Doctors</h3>
+                    <p class="card-text">Meet our dedicated team of professional doctors.</p>
+                    <a href="{% url 'viewDoctor' %}" class="btn btn-primary">Explore</a>
+                </div>
+            </div>
+        </div>
+
+       
+
+    </div>
 </div>
+
 {% endblock %}

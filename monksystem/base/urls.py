@@ -12,13 +12,19 @@ urlpatterns = [
     path('login/', views.loginPage, name = "login"),
     path('logout/', views.logoutUser, name = "logout"),
     path('register/', views.registerPage, name = "register"),
-    path('patient/<str:pk>', views.patient, name="patient"),
 
-    
+    path('viewFile/', views.viewFile, name='viewFile'),    
+    path('uploadFile/', views.uploadFile, name='uploadFile'),
+
+    path('file/<int:file_id>/', views.file, name='file'),    
+    path('claim/<int:file_id>/', views.claimFile, name='claimFile'),
+    path('import/', views.importFiles, name='importFiles'),
+
     path('doctor/<str:pk>', views.doctor, name="doctor"),
     path('viewDoctor/', views.viewDoctor, name = "viewDoctor"),
     path('addDoctor/', views.addDoctor, name = "addDoctor"),
 
+    path('patient/<str:pk>', views.patient, name="patient"),
     path('viewPatient/', views.viewPatient, name = "viewPatient"),
     path('addPatient/', views.addPatient, name = "addPatient"),
 
@@ -29,10 +35,4 @@ urlpatterns = [
     path('viewVitals/', views.viewVitals, name = "viewVitals"),
     #path('addVitals/', views.addVitals, name = "addVitals"),
     
-    path('upload/', views.upload_file, name='upload_file'),
-    path('claim/<int:file_id>/', views.claim_file, name='claim_file'),
-    path('import/', views.import_files, name='import_files'),
-    path('file/<int:file_id>/', views.file, name='file'),
-
-
 ]

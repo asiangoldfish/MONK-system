@@ -1,0 +1,49 @@
+{% extends 'main.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-5">Nihon Kohden Files</h2>
+
+    {% if files %}
+        <div class="row">
+            {% for file in files %}
+                {% with file.fileclaim_set.first as claim %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        {% if claim and claim.doctor.user == user %}
+                            <a href="{% url 'file' file.id %}" class="card-header bg-primary text-white d-block" style="text-decoration: none; font-size: 1.25rem;">
+                                <i class="bi bi-file-earmark-text" style="margin-right: 10px;"></i>
+                                <strong>{{ file.title }}</strong>
+                            </a>
+                        {% else %}
+                            <div class="card-header bg-primary text-white d-block" style="font-size: 1.25rem;">
+                                <i class="bi bi-file-earmark-text" style="margin-right: 10px;"></i>
+                                <strong>{{ file.title }}</strong>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            {% if claim %}
+                                <p class="card-text"><i class="bi bi-person-check-fill"></i> Claimed By: <a href="{% url 'doctor' claim.doctor.id %}">{{ claim.doctor.name }}</a></p>
+                                <p class="card-text"><i class="bi bi-clock-fill"></i> Claimed At: {{ claim.claimed_at|date:"Y-m-d H:i" }}</p>
+                                <button class="btn btn-secondary btn-sm" disabled><i class="bi bi-x-circle-fill"></i> Already Claimed</button>
+                            {% else %}
+                                <p class="card-text">Status: <span class="text-muted">Not Claimed</span></p>
+                                <a href="{% url 'claimFile' file.id %}" class="btn btn-success btn-sm"><i class="bi bi-check-circle-fill"></i> Claim</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endwith %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            No files to display.
+        </div>
+    {% endif %}
+    
+
+</div>
+{% endblock %}
