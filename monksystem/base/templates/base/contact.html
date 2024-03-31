@@ -3,43 +3,59 @@
 {% load static %}
 
 {% block content %}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Contact Us</h2>
     
-<div class = "container" style = "margin-top:50px">
-    <h2 class = "text-center">Contact</h2>
-
-    <br><br>
-    <div class = "row mt-5 text-center">
-        <div class = "col-lg-3 col-sm-6">
-            <h4><i class = "fas fa-phone-square"></i>Contact</h4>
-            <p class = "mt-3 font-weight-bold"><a class = "text-danger" href="#">23070000</a></p>
-        </div>
-        
-        <div class = "col-lg-3 col-sm-6">
-            <h4><i class = "fas fa-address-card"></i>Address</h4>
-            <p class = "mt-3 font-weight-bold"><a class = "text-danger" href="http://maps.google.com/maps?q=Rikshospital+">Oslo University Hospital</a></p>
+    <div class="row text-center">
+        <!-- Contact Card -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h4 class="card-title"><i class="fas fa-phone-square"></i> Contact</h4>
+                    <p class="card-text mt-3 font-weight-bold">
+                        <a class="text-danger" href="tel:23070000">23070000</a>
+                    </p>
+                </div>
+            </div>
         </div>
 
-        
-        <div class = "col-lg-3 col-sm-6">
-            <h4><i class = "fas fa-envelope"></i>Send mail</h4>
-            <p class = "mt-3 font-weight-bold">
-                <a class = "text-danger" href="mailto:post@oslo-universitetssykehus.no">post@oslo-universitetssykehus.no</a></p>
+        <!-- Address Card -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h4 class="card-title"><i class="fas fa-address-card"></i> Address</h4>
+                    <p class="card-text mt-3 font-weight-bold">
+                        <a class="text-danger" href="http://maps.google.com/maps?q=Oslo+University+Hospital" target="_blank">Oslo University Hospital</a>
+                    </p>
+                </div>
+            </div>
         </div>
 
-        
-        <div class = "col-lg-3 col-sm-6">
-            <h4><i class = "fas fa-envelope"></i>Office hours</h4>
-            <p class = "mt-3 font-weight-bold">
-                <a class = "text-danger">Open 24 hours a day</a></p>
+        <!-- Email Card -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h4 class="card-title"><i class="fas fa-envelope"></i> Send Mail</h4>
+                    <p class="card-text mt-3 font-weight-bold">
+                        <a class="text-danger" href="mailto:post@oslo-universitetssykehus.no">post@oslo-universitetssykehus.no</a>
+                    </p>
+                </div>
+            </div>
         </div>
 
+        <!-- Office Hours Card -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h4 class="card-title"><i class="fas fa-clock"></i> Office Hours</h4>
+                    <p class="card-text mt-3 font-weight-bold text-danger">
+                        Open 24 hours a day
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
-
-
-
-
 </div>
-
-
 
 {% endblock %}
