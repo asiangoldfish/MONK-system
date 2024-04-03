@@ -25,7 +25,7 @@ $(document).ready(function() {
 
 
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-    <a href="/" class="navbar-brand">Patient monitoring system</a>
+    <a href="/" class="navbar-brand">Health monitoring system</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#myMenu">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -51,10 +51,10 @@ $(document).ready(function() {
             </li>
     
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Patients</a>
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Subjects</a>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{% url 'addPatient' %}">Add Patient</a>
-                    <a class="dropdown-item" href="{% url 'viewPatient' %}">View Patient</a>
+                    <a class="dropdown-item" href="{% url 'addSubject' %}">Add Subject</a>
+                    <a class="dropdown-item" href="{% url 'viewSubject' %}">View Subject</a>
                 </div>
             </li>
 

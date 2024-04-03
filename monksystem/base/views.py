@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate,login,logout
-from .models import Patient, Doctor, Project, Vitals, File, FileClaim
+from .models import Subject, Doctor, Project, Vitals, File, FileClaim
 from django.contrib import messages
 from .forms import FileForm, DoctorRegistrationForm  
 from django.conf import settings
@@ -20,14 +20,14 @@ from django.db.models import Q
 
 
 def home(request):
-    patients  = Patient.objects.all()
-    context = {"patients" : patients}
+    subjects  = Subject.objects.all()
+    context = {"subjects" : subjects}
     return render(request, 'base/home.html', context)
 
-def patient(request, pk):
-    patient = Patient.objects.get(patient_id=pk)
-    context = {'patient':patient}
-    return render(request, 'base/patient.html', context)
+def subject(request, pk):
+    subject = Subject.objects.get(subject_id=pk)
+    context = {'subject':subject}
+    return render(request, 'base/subject.html', context)
 
 def doctor(request, pk):
     doctor = Doctor.objects.get(id=pk)
@@ -161,12 +161,12 @@ def viewDoctor(request):
     return render(request,'base/view_doctor.html', context)
     
 @login_required
-def viewPatient(request):
+def viewSubject(request):
     
-    patients = Patient.objects.all()
+    subjects = Subject.objects.all()
     
-    context = {'patients' : patients}
-    return render(request,'base/view_patient.html', context)
+    context = {'subjects' : subjects}
+    return render(request,'base/view_subject.html', context)
 
 
 @login_required
@@ -218,9 +218,9 @@ def addDoctor(request):
 
 
 @login_required
-def addPatient(request):
+def addSubject(request):
     if request.method == "POST":
-        patient_id = request.POST.get('patient_id')
+        subject_id = request.POST.get('subject_id')
         name = request.POST.get('name')
         gender = request.POST.get('gender')
         birth_date = request.POST.get('birth_date')
@@ -232,21 +232,21 @@ def addPatient(request):
             file_instance = File.objects.get(id=file_id)
 
         try:
-            Patient.objects.create(
-                patient_id=patient_id,
+            Subject.objects.create(
+                subject_id=subject_id,
                 name=name,
                 gender=gender,
                 birth_date=birth_date if birth_date else None,  # Handle empty birth_date
                 file=file_instance
             )
-            messages.success(request, "Patient added successfully.")
-            return redirect("viewPatient")
+            messages.success(request, "Subject added successfully.")
+            return redirect("viewSubject")
         except Exception as e:
             messages.error(request, f"An error occurred: {str(e)}")
 
     # If GET request or form not valid, render the form page again
     files = File.objects.all()  # Provide list of files for the form
-    return render(request, 'base/add_patient.html', {'files': files})
+    return render(request, 'base/add_subject.html', {'files': files})
 
 @login_required
 def addProject(request):
@@ -254,21 +254,21 @@ def addProject(request):
         rekNummer = request.POST.get('rekNummer')
         description = request.POST.get('description')
         doctors_ids = request.POST.getlist('doctors')  
-        patients_ids = request.POST.getlist('patients')  
+        subjects_ids = request.POST.getlist('subjects')  
 
         # Create project instance
         project = Project.objects.create(rekNummer=rekNummer, description=description)
 
-        # Set doctors and patients for the project
+        # Set doctors and subjects for the project
         project.doctors.set(Doctor.objects.filter(id__in=doctors_ids))
-        project.patients.set(Patient.objects.filter(id__in=patients_ids))
+        project.subjects.set(Subject.objects.filter(id__in=subjects_ids))
 
         messages.success(request, "Project added successfully.")
         return redirect("viewProject")
     
     doctors = Doctor.objects.all()
-    patients = Patient.objects.all()
-    context = {'doctors' : doctors, 'patients' : patients}
+    subjects = Subject.objects.all()
+    context = {'doctors' : doctors, 'subjects' : subjects}
     return render(request, 'base/add_project.html', context)
 
 
@@ -332,10 +332,10 @@ def claimFile(request, file_id):
             # Use the monklib module to get the header data
             header = get_header(file_to_claim.file.path)
 
-            # Extract patient information from the header
-            patient_id = header.patientID
-            patient_name = header.patientName
-            patient_sex = header.patientSex
+            # Extract subject information from the header
+            subject_id = header.patientID
+            subject_name = header.patientName
+            subject_sex = header.patientSex
             birth_date_str = header.birthDateISO
 
             # Parse the birth date if it's not 'N/A' and in the expected format
@@ -347,19 +347,19 @@ def claimFile(request, file_id):
             else:
                 birth_date = None
 
-            # Check if the patient already exists
-            if not Patient.objects.filter(patient_id=patient_id).exists():
-                # Create a new patient object with the extracted data
-                Patient.objects.create(
-                    patient_id=patient_id,
-                    name=patient_name,
-                    gender=patient_sex,
+            # Check if the subject already exists
+            if not Subject.objects.filter(subject_id=subject_id).exists():
+                # Create a new subject object with the extracted data
+                Subject.objects.create(
+                    subject_id=subject_id,
+                    name=subject_name,
+                    gender=subject_sex,
                     birth_date=birth_date,
                     file=file_to_claim
                 )
-                messages.success(request, f"Patient with ID {patient_id} was successfully created.")
+                messages.success(request, f"Subject with ID {subject_id} was successfully created.")
             else:
-                messages.info(request, f"A patient with ID {patient_id} already exists.")
+                messages.info(request, f"A subject with ID {subject_id} already exists.")
         except Exception as e:
             messages.error(request, f"An error occurred while processing the file: {str(e)}")
     else:

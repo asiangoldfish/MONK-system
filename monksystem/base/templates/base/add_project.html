@@ -19,10 +19,10 @@
         </select>
         
         <!-- Updated Patient selection -->
-        <label>Patient(s)</label>
-        <select name="patients" class="form-control" multiple>
-            {% for patient in patients %}
-            <option value="{{patient.id}}">{{patient.name}} [{{patient.id}}]</option>
+        <label>Subject(s)</label>
+        <select name="subjects" class="form-control" multiple>
+            {% for subject in subjects %}
+            <option value="{{subject.id}}">{{subject.name}} [{{subject.id}}]</option>
             {% endfor %}
         </select>
         

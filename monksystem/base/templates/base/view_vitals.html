@@ -12,7 +12,7 @@
     <table class = "table table-hover" id = "example">
         <thead>
             <tr>
-                <th>Patient Name</th>
+                <th>Subject Name</th>
                 <th>Description</th>
                 <th>Heart Rate</th>
                 <th>Oxygen Levels</th>
@@ -27,7 +27,7 @@
         {% for vital in vitals %}
             <tr>
                 <td>
-                    <a href="{% url 'patient' vital.patient.id %}">{{vital.patient}}</a>
+                    <a href="{% url 'subject' vital.subject.id %}">{{vital.subject}}</a>
                 </td>
                 <td>{{vital.description}}</td>
                 <td>{{vital.heartRate}} beats per minute</td>

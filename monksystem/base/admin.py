@@ -2,10 +2,10 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import Doctor, Patient, Project, Vitals, File, FileClaim
+from .models import Doctor, Subject, Project, Vitals, File, FileClaim
 
 admin.site.register(Doctor)
-admin.site.register(Patient)
+admin.site.register(Subject)
 admin.site.register(Project)
 admin.site.register(Vitals)
 admin.site.register(File)

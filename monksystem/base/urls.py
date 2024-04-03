@@ -24,9 +24,9 @@ urlpatterns = [
     path('viewDoctor/', views.viewDoctor, name = "viewDoctor"),
     path('addDoctor/', views.addDoctor, name = "addDoctor"),
 
-    path('patient/<str:pk>', views.patient, name="patient"),
-    path('viewPatient/', views.viewPatient, name = "viewPatient"),
-    path('addPatient/', views.addPatient, name = "addPatient"),
+    path('subject/<str:pk>', views.subject, name="subject"),
+    path('viewSubject/', views.viewSubject, name = "viewSubject"),
+    path('addSubject/', views.addSubject, name = "addSubject"),
 
     path('project/<str:pk>', views.project, name="project"),
     path('viewProject/', views.viewProject, name = "viewProject"),
