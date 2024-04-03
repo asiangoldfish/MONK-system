@@ -287,7 +287,7 @@ def home(request):
 
 
 @login_required
-def uploadFile(request):
+def importFile(request):
     form = FileForm()
     if request.method == 'POST' and 'submitted' in request.POST:
         form = FileForm(request.POST, request.FILES)
@@ -303,7 +303,7 @@ def uploadFile(request):
                 # Handle other form errors
                 messages.error(request, "Please correct the error below.")
 
-    return render(request, 'base/upload_file.html', {'form': form})
+    return render(request, 'base/import_file.html', {'form': form})
 
 
 @login_required
@@ -367,28 +367,3 @@ def claimFile(request, file_id):
 
     # Redirect back to the home page
     return redirect('viewFile')
-
-
-@login_required
-def importFiles(request):
-    # Build the directory path dynamically using BASE_DIR
-    directory_path = Path(settings.BASE_DIR) / "nihon_kohden_files"
-    files_imported = False
-
-    # Check if directory exists before listing files
-    if directory_path.exists() and directory_path.is_dir():
-        for filename in os.listdir(directory_path):
-            file_path = directory_path / filename
-            if not File.objects.filter(title=filename).exists():
-                with file_path.open('rb') as file:
-                    django_file = DjangoFile(file, name=filename)
-                    File.objects.create(title=filename, file=django_file)
-                    files_imported = True  # Mark as true if at least one file is imported
-    else:
-        return HttpResponse("The directory does not exist.")
-
-    if not files_imported:
-        return HttpResponse("No more files to import.")
-    else:
-        return HttpResponse("Files imported successfully.")
-    
