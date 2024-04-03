@@ -4,10 +4,10 @@
 {% block content %}
 <div class = "container">
     <br>
-    <h2 class = "text-center">Add Doctor</h2>
+    <h2 class = "text-center">Add User</h2>
     <form method = "POST" action ="">
         {% csrf_token %}
-        <label>Doctor Name</label>
+        <label>User Name</label>
         <input type ="text" class = "form-control" name="name" required/>
         <label>Contact</label>
         <input type ="text" class = "form-control" name="contact" required/>

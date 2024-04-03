@@ -10,11 +10,11 @@
         <label>REK nummer</label>
         <input type="text" class="form-control" name="rekNummer" required/>
         
-        <!-- Updated Doctor selection -->
-        <label>Doctor(s)</label>
-        <select name="doctors" class="form-control" multiple>
-            {% for doctor in doctors %}
-            <option value="{{doctor.id}}">{{doctor.name}} [{{doctor.id}}]</option>
+        <!-- Updated user selection -->
+        <label>User(s)</label>
+        <select name="users" class="form-control" multiple>
+            {% for user in users %}
+            <option value="{{user.id}}">{{user.name}} [{{user.id}}]</option>
             {% endfor %}
         </select>
         

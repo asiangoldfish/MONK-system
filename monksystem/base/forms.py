@@ -10,7 +10,7 @@ class FileForm(forms.ModelForm):
         fields = ('title', 'file',)
 
 
-class DoctorRegistrationForm(UserCreationForm):
+class UserRegistrationForm(UserCreationForm):
     name = forms.CharField(max_length=50, help_text='Required. Add your full name.')
     mobile = forms.IntegerField(help_text='Required. Add a contact number.')
     specialization = forms.CharField(max_length=50, help_text='Required. Add your specialization.')

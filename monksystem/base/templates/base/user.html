@@ -1,0 +1,17 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <h5 class="card-header">User Information</h5>
+        <div class="card-body">
+            
+            <h5 class="card-title">{{ user.name }}</h5>
+            <p class="card-text"><strong>ID:</strong> {{ user.id }}</p> 
+            <p class="card-text"><strong>Username:</strong> {{ user.user.username }}</p>
+            <p class="card-text"><strong>Contact:</strong> {{ user.mobile }}</p>
+            <p class="card-text"><strong>Specialization:</strong> {{ user.specialization }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

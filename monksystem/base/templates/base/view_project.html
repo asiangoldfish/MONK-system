@@ -9,7 +9,7 @@
     {% if projects %}
         {% for project in projects %}
         <div class="card mb-5">
-            {% if request.user.doctor in project.doctors.all %}
+            {% if request.user.userprofile in project.users.all %}
                 <a href="{% url 'project' project.id %}" class="card-header bg-primary text-white d-block" style="text-decoration: none;">
                     <i class="bi bi-briefcase-fill" style="margin-right: 10px;"></i>
                     <strong>Project: {{ project.rekNummer }}</strong>
@@ -21,22 +21,22 @@
                 </div>
             {% endif %}
             <div class="card-body">
-                <p class="card-text"><strong><i class="bi bi-person-badge-fill"></i> Doctors involved:</strong></p>
+                <p class="card-text"><strong><i class="bi bi-person-badge-fill"></i> Users involved:</strong></p>
                 <div class="row">
-                    {% for doctor in project.doctors.all %}
+                    {% for user in project.users.all %}
                     <div class="col-md-4 mb-3">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title"><i class="bi bi-person-circle"></i> {{ doctor.name }}</h5>
-                                <p class="card-text">Specialization: {{ doctor.specialization }}</p>
-                                <p class="card-text">Contact: {{ doctor.mobile }}</p>
-                                <a href="{% url 'doctor' doctor.id %}" class="btn btn-primary">View Doctor</a>
+                                <h5 class="card-title"><i class="bi bi-person-circle"></i> {{ user.name }}</h5>
+                                <p class="card-text">Specialization: {{ user.specialization }}</p>
+                                <p class="card-text">Contact: {{ user.mobile }}</p>
+                                <a href="{% url 'user' user.id %}" class="btn btn-primary">View User</a>
                             </div>
                         </div>
                     </div>
                     {% empty %}
                     <div class="col">
-                        <p>No doctors assigned to this project yet.</p>
+                        <p>No users assigned to this project yet.</p>
                     </div>
                     {% endfor %}
                 </div>
@@ -49,7 +49,7 @@
                             <div class="card-body">
                                 <h5 class="card-title"><i class="bi bi-person-lines-fill"></i> {{ subject.name }}</h5>
                                 <p class="card-text">Gender: {{ subject.gender }}</p>
-                                {% if request.user.doctor in project.doctors.all %}
+                                {% if request.user.userprofile in project.users.all %}
                                     <a href="{% url 'subject' subject.subject_id %}" class="btn btn-primary">View Subject</a>
                                 {% else %}
                                     <button class="btn btn-secondary" disabled>View Subject</button>

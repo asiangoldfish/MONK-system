@@ -6,8 +6,8 @@ from django.utils.timezone import now
 
 # Create your models here.
 
-class Doctor(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null = True)
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null = True, related_name='userprofile')
     name = models.CharField(max_length=50)
     mobile = models.IntegerField()
     specialization = models.CharField(max_length=50)
@@ -41,7 +41,7 @@ class Project(models.Model):
     rekNummer = models.TextField(null = True, blank = True) 
     description = models.TextField(null = True, blank = True) # Description of project. Makes sure the values can be left blank. 
     
-    doctors = models.ManyToManyField(Doctor, related_name='projects')
+    users = models.ManyToManyField(UserProfile, related_name='projects')
     subjects = models.ManyToManyField(Subject, related_name='projects')
     
     updated = models.DateTimeField(auto_now = True) # Takes a snapshot of anytime the table (model instance) is updated. Takes a timestamp every time appointment is updated.
@@ -67,9 +67,9 @@ class Vitals(models.Model):
 
 # Model for file claims
 class FileClaim(models.Model):
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     file = models.ForeignKey(File, on_delete=models.CASCADE)
     claimed_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.file.title} claimed by {self.doctor.name}"
+        return f"{self.file.title} claimed by {self.user.name}"

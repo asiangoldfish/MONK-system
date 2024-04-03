@@ -9,12 +9,12 @@
             <p class="card-text"><strong>Project ID:</strong> {{ project.id }}</p>
             <p class="card-text"><strong>Description:</strong> {{ project.description }}</p>
             
-            <!-- Displaying multiple doctors -->
-            <p class="card-text"><strong>Doctors involved:</strong>
-                {% for doctor in project.doctors.all %}
-                    {{ doctor.name }}{% if not forloop.last %}, {% endif %}
+            <!-- Displaying multiple users -->
+            <p class="card-text"><strong>Users involved:</strong>
+                {% for user in project.users.all %}
+                    {{ user.name }}{% if not forloop.last %}, {% endif %}
                 {% empty %}
-                    No doctors assigned.
+                    No users assigned.
                 {% endfor %}
             </p>
             

@@ -19,9 +19,9 @@ urlpatterns = [
     path('file/<int:file_id>/', views.file, name='file'),    
     path('claim/<int:file_id>/', views.claimFile, name='claimFile'),
 
-    path('doctor/<str:pk>', views.doctor, name="doctor"),
-    path('viewDoctor/', views.viewDoctor, name = "viewDoctor"),
-    path('addDoctor/', views.addDoctor, name = "addDoctor"),
+    path('user/<str:pk>', views.user, name="user"),
+    path('viewUser/', views.viewUser, name = "viewUser"),
+    path('addUser/', views.viewUser, name = "addUser"),
 
     path('subject/<str:pk>', views.subject, name="subject"),
     path('viewSubject/', views.viewSubject, name = "viewSubject"),

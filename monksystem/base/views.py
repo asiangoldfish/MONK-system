@@ -7,9 +7,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate,login,logout
-from .models import Subject, Doctor, Project, Vitals, File, FileClaim
+from .models import Subject, UserProfile, Project, Vitals, File, FileClaim
 from django.contrib import messages
-from .forms import FileForm, DoctorRegistrationForm  
+from .forms import FileForm, UserRegistrationForm  
 from django.conf import settings
 from django.core.files import File as DjangoFile
 from pathlib import Path
@@ -29,10 +29,10 @@ def subject(request, pk):
     context = {'subject':subject}
     return render(request, 'base/subject.html', context)
 
-def doctor(request, pk):
-    doctor = Doctor.objects.get(id=pk)
-    context = {'doctor':doctor}
-    return render(request, 'base/doctor.html', context)
+def user(request, pk):
+    user = UserProfile.objects.get(id=pk)
+    context = {'user':user}
+    return render(request, 'base/user.html', context)
 
 def project(request, pk):
     project = Project.objects.get(id=pk)
@@ -49,7 +49,7 @@ def contact(request):
 def file(request, file_id):
     file = get_object_or_404(File, id=file_id)
     try:
-        claim = FileClaim.objects.get(file=file, doctor__user=request.user)
+        claim = FileClaim.objects.get(file=file, user__user=request.user)
     except FileClaim.DoesNotExist:
         # If the file is not claimed by the current user, return an error or redirect
         return HttpResponseForbidden("You do not have permission to view this file.")
@@ -123,12 +123,12 @@ def logoutUser(request):
 def registerPage(request):
     # else is used in the html, so no need for a page variable here. 
     #form = UserCreationForm()
-    form = DoctorRegistrationForm()
+    form = UserRegistrationForm()
 
     # Check if method is a POST request
     if request.method == 'POST':
         #form = UserCreationForm(request.POST) # passes in the data: username and password into user creation form
-        form = DoctorRegistrationForm(request.POST)
+        form = UserRegistrationForm(request.POST)
 
         # Checks if the form is valid
         if form.is_valid():
@@ -136,8 +136,8 @@ def registerPage(request):
             user.username = user.username.lower() # Now that the user is created, we can access their credentials, like username and password. We lowercase the username of the user. 
             user.save() # saves the user. 
             
-            # Now, use the extra fields to create a Doctor instance
-            Doctor.objects.create(
+            # Now, use the extra fields to create a user instance
+            UserProfile.objects.create(
                 user=user,
                 name=form.cleaned_data.get('name'),
                 mobile=form.cleaned_data.get('mobile'),
@@ -153,12 +153,12 @@ def registerPage(request):
     return render(request,'base/login_register.html', context)
 
 @login_required
-def viewDoctor(request):
+def viewUser(request):
     
-    doctors = Doctor.objects.all()
+    users = UserProfile.objects.all()
     
-    context = {'doctors' : doctors}
-    return render(request,'base/view_doctor.html', context)
+    context = {'users' : users}
+    return render(request,'base/view_user.html', context)
     
 @login_required
 def viewSubject(request):
@@ -173,10 +173,10 @@ def viewSubject(request):
 def viewProject(request):
     # Check if the logged-in user is associated with a Doctor instance
     try:
-        doctor = request.user.doctor
+        user_profile = request.user.userprofile
         # Filter projects where the current user's doctor instance is in the project's doctors
-        projects = Project.objects.filter(doctors=doctor)
-    except Doctor.DoesNotExist:
+        projects = Project.objects.filter(users=user_profile)
+    except UserProfile.DoesNotExist:
         # If the user does not have an associated Doctor instance, return an empty project list
         projects = Project.objects.none()
     
@@ -203,18 +203,18 @@ def viewVitals(request):
     return render(request,'base/view_vitals.html', context)
 
 @login_required
-def addDoctor(request):
+def addUser(request):
     
     if request.method == "POST":
         name = request.POST['name']
         contact = request.POST['contact']
         specialization = request.POST['specialization']
         
-        Doctor.objects.create(name=name, mobile=contact, specialization = specialization)
-        messages.success(request, "Doctor added successfully.")
-        return redirect("viewDoctor")
+        User.objects.create(name=name, mobile=contact, specialization = specialization)
+        messages.success(request, "User added successfully.")
+        return redirect("viewUser")
     
-    return render(request, 'base/add_doctor.html')
+    return render(request, 'base/add_user.html')
 
 
 @login_required
@@ -253,22 +253,22 @@ def addProject(request):
     if request.method == "POST":
         rekNummer = request.POST.get('rekNummer')
         description = request.POST.get('description')
-        doctors_ids = request.POST.getlist('doctors')  
+        users_ids = request.POST.getlist('users')  
         subjects_ids = request.POST.getlist('subjects')  
 
         # Create project instance
         project = Project.objects.create(rekNummer=rekNummer, description=description)
 
         # Set doctors and subjects for the project
-        project.doctors.set(Doctor.objects.filter(id__in=doctors_ids))
+        project.users.set(UserProfile.objects.filter(id__in=users_ids))
         project.subjects.set(Subject.objects.filter(id__in=subjects_ids))
 
         messages.success(request, "Project added successfully.")
         return redirect("viewProject")
     
-    doctors = Doctor.objects.all()
+    users = UserProfile.objects.all()
     subjects = Subject.objects.all()
-    context = {'doctors' : doctors, 'subjects' : subjects}
+    context = {'users' : users, 'subjects' : subjects}
     return render(request, 'base/add_project.html', context)
 
 
@@ -317,13 +317,13 @@ def claimFile(request, file_id):
         return redirect('viewFile')
 
     try:
-        doctor = request.user.doctor
-    except Doctor.DoesNotExist:
-        messages.error(request, "You are not registered as a doctor. Only doctors can claim files.")
+        user_profile = request.user.userprofile
+    except UserProfile.DoesNotExist:
+        messages.error(request, "You are not registered as a user. Only user can claim files.")
         return redirect('viewFile')
 
     # Proceed with claiming the file
-    FileClaim.objects.create(doctor=doctor, file=file_to_claim)
+    FileClaim.objects.create(user=user_profile, file=file_to_claim)
     messages.success(request, "File claimed successfully.")
 
     # Process the file if it is an MWF file
