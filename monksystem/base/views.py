@@ -19,10 +19,25 @@ from django.db.models import Q
 
 
 
-def home(request):
-    subjects  = Subject.objects.all()
-    context = {"subjects" : subjects}
+#def home(request):
+#    subjects  = Subject.objects.all()
+#    context = {"subjects" : subjects}
+#    return render(request, 'base/home.html', context)
+
+
+@login_required
+def homePage(request):
+    files = File.objects.all()
+    if request.method == 'POST':
+        form = FileForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+    else:
+        form = FileForm()
+    context = {'files': files, 'form': form}
     return render(request, 'base/home.html', context)
+
 
 def subject(request, pk):
     subject = Subject.objects.get(subject_id=pk)
@@ -39,10 +54,10 @@ def project(request, pk):
     context = {'project':project}
     return render(request, 'base/project.html', context)
 
-def about(request):
+def aboutPage(request):
     return render(request, "base/about.html")
 
-def contact(request):
+def contactPage(request):
     return render(request, "base/contact.html")
 
 
@@ -184,7 +199,6 @@ def viewProject(request):
     return render(request, 'base/view_project.html', context)
     
 
-
 @login_required
 def viewFile(request):
     
@@ -271,19 +285,6 @@ def addProject(request):
     context = {'users' : users, 'subjects' : subjects}
     return render(request, 'base/add_project.html', context)
 
-
-@login_required
-def home(request):
-    files = File.objects.all()
-    if request.method == 'POST':
-        form = FileForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
-    else:
-        form = FileForm()
-    context = {'files': files, 'form': form}
-    return render(request, 'base/home.html', context)
 
 
 @login_required
