@@ -105,8 +105,8 @@ class TestViews(TestCase):
 
     def test_add_project_POST(self):
         self.client.login(username='testuser', password='testpass')  # Ensure login
-        users_ids = [self.user_profile.id]  # Assuming you've created this in setup
-        subjects_ids = [self.subject.id]  # Assuming you've created this in setup
+        users_ids = [self.user_profile.id]  
+        subjects_ids = [self.subject.id]  
         response = self.client.post(reverse('addProject'), {
             'rekNummer': 'R002',
             'description': 'Test Project 2',
@@ -118,7 +118,7 @@ class TestViews(TestCase):
 
     def test_claim_file_POST(self):
         self.client.login(username='testuser', password='testpass')  # Ensure login
-        url = reverse('claimFile', kwargs={'file_id': self.file.id})  # Assuming self.file exists
+        url = reverse('claimFile', kwargs={'file_id': self.file.id})  
         response = self.client.post(url)
         self.assertEqual(response.status_code, 302)  # Redirect expected upon success
         self.assertTrue(FileClaim.objects.filter(file=self.file, user=self.user_profile).exists())
