@@ -73,6 +73,7 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'base/user.html')  
 
+
     def test_registerPage_POST(self):
         # Simulate a POST request to register a new user
         response = self.client.post(reverse('register'), data={
@@ -88,7 +89,40 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(User.objects.filter(username='newuser').exists())
         self.assertTrue(UserProfile.objects.filter(name='New User').exists())
-            
+        
+        
+    def test_add_subject_POST(self):
+        self.client.login(username='testuser', password='testpass')  # Ensure login
+        response = self.client.post(reverse('addSubject'), {
+            'subject_id': 'S002',
+            'name': 'Subject Two',
+            'gender': 'Female',
+            'birth_date': '1990-01-01',
+            'file_id': self.file.id
+        })
+        self.assertEqual(response.status_code, 302)  # Redirect expected upon success
+        self.assertTrue(Subject.objects.filter(subject_id='S002').exists())
+
+    def test_add_project_POST(self):
+        self.client.login(username='testuser', password='testpass')  # Ensure login
+        users_ids = [self.user_profile.id]  # Assuming you've created this in setup
+        subjects_ids = [self.subject.id]  # Assuming you've created this in setup
+        response = self.client.post(reverse('addProject'), {
+            'rekNummer': 'R002',
+            'description': 'Test Project 2',
+            'users': users_ids,
+            'subjects': subjects_ids
+        })
+        self.assertEqual(response.status_code, 302)  # Redirect expected upon success
+        self.assertTrue(Project.objects.filter(rekNummer='R002').exists())
+
+    def test_claim_file_POST(self):
+        self.client.login(username='testuser', password='testpass')  # Ensure login
+        url = reverse('claimFile', kwargs={'file_id': self.file.id})  # Assuming self.file exists
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)  # Redirect expected upon success
+        self.assertTrue(FileClaim.objects.filter(file=self.file, user=self.user_profile).exists())
+
 
     def test_importFile_POST(self):
             self.client.login(username='testuser', password='testpass')

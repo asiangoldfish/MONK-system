@@ -45,12 +45,6 @@ class TestUrls(SimpleTestCase):
         resolved = resolve(url).func
         self.assertEquals(resolved, viewUser)
 
-    def test_add_user_url_resolves(self):
-        # Testing the URL for adding a new user, which reuses the viewUser view
-        url = reverse('addUser')
-        resolved = resolve(url).func
-        self.assertEquals(resolved, viewUser)  # Assuming addUser uses the viewUser view for simplicity
-
     def test_subject_detail_url_resolves(self):
         # Testing dynamic URL for subject detail view
         url = reverse('subject', kwargs={'pk': 'S001'})

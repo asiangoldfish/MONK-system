@@ -21,7 +21,7 @@ urlpatterns = [
 
     path('user/<str:pk>', views.user, name="user"),
     path('viewUser/', views.viewUser, name = "viewUser"),
-    path('addUser/', views.viewUser, name = "addUser"),
+    #path('addUser/', views.addUser, name = "addUser"),
 
     path('subject/<str:pk>', views.subject, name="subject"),
     path('viewSubject/', views.viewSubject, name = "viewSubject"),

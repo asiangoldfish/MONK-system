@@ -216,8 +216,8 @@ def viewVitals(request):
     context = {'vitals' : vitals}
     return render(request,'base/view_vitals.html', context)
 
-@login_required
-def addUser(request):
+#@login_required
+#def addUser(request):
     
     if request.method == "POST":
         name = request.POST['name']
