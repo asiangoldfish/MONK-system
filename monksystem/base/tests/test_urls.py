@@ -39,6 +39,60 @@ class TestUrls(SimpleTestCase):
         resolved = resolve(url).func
         self.assertEquals(resolved, registerPage)
     
+    def test_view_user_url_resolves(self):
+        # Testing the URL for viewing all users
+        url = reverse('viewUser')
+        resolved = resolve(url).func
+        self.assertEquals(resolved, viewUser)
+
+    def test_add_user_url_resolves(self):
+        # Testing the URL for adding a new user, which reuses the viewUser view
+        url = reverse('addUser')
+        resolved = resolve(url).func
+        self.assertEquals(resolved, viewUser)  # Assuming addUser uses the viewUser view for simplicity
+
+    def test_subject_detail_url_resolves(self):
+        # Testing dynamic URL for subject detail view
+        url = reverse('subject', kwargs={'pk': 'S001'})
+        resolved = resolve(url).func
+        self.assertEquals(resolved, subject)
+
+    def test_view_subject_url_resolves(self):
+        # Testing the URL for viewing all subjects
+        url = reverse('viewSubject')
+        resolved = resolve(url).func
+        self.assertEquals(resolved, viewSubject)
+
+    def test_add_subject_url_resolves(self):
+        # Testing the URL for adding a new subject
+        url = reverse('addSubject')
+        resolved = resolve(url).func
+        self.assertEquals(resolved, addSubject)
+
+    def test_project_detail_url_resolves(self):
+        # Testing dynamic URL for project detail view
+        url = reverse('project', kwargs={'pk': 'P001'})
+        resolved = resolve(url).func
+        self.assertEquals(resolved, project)
+
+    def test_view_project_url_resolves(self):
+        # Testing the URL for viewing all projects
+        url = reverse('viewProject')
+        resolved = resolve(url).func
+        self.assertEquals(resolved, viewProject)
+
+    def test_add_project_url_resolves(self):
+        # Testing the URL for adding a new project
+        url = reverse('addProject')
+        resolved = resolve(url).func
+        self.assertEquals(resolved, addProject)
+
+    def test_view_vitals_url_resolves(self):
+        # Testing the URL for viewing all vitals
+        url = reverse('viewVitals')
+        resolved = resolve(url).func
+        self.assertEquals(resolved, viewVitals)
+    
     def test_view_file_url_resolves(self):
         url = reverse('viewFile')
         resolved = resolve(url).func
