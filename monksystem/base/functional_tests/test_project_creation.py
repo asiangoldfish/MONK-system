@@ -43,17 +43,13 @@ class TestProjectCreationAndView(StaticLiveServerTestCase):
         # Fill out the REK nummer and description fields
         self.browser.find_element(By.NAME, "rekNummer").send_keys(rek_nummer)
         self.browser.find_element(By.NAME, "description").send_keys(description)
-
-        # Expand the User(s) dropdown. This might involve clicking a button or the dropdown itself, depending on the implementation
-        # If the dropdown is a select element enhanced with a library like Select2, the actual element to click could differ
-        # Replace the following line with the correct selector for your dropdown
+    
         user_dropdown_trigger = self.browser.find_element(By.XPATH, "//label[contains(text(), 'User(s)')]/following-sibling::div")
         user_dropdown_trigger.click()
         time.sleep(2)  # Adjust based on the responsiveness of your application
 
         # Select the "Test User" option from the dropdown
         # The exact method to locate and click the option depends on how the dropdown is implemented
-        # This is an example that needs to be adjusted based on your application's structure
         test_user_option = self.browser.find_element(By.XPATH, "//option[contains(text(), 'Test User')]")
         test_user_option.click()
         time.sleep(2)  # Give some time for the action to be registered
