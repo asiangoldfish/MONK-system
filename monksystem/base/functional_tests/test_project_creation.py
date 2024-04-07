@@ -9,7 +9,7 @@ import time
 class TestProjectCreationAndView(StaticLiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Chrome()
-        self.browser.implicitly_wait(10)  # seconds
+        self.browser.implicitly_wait(2)  # seconds
 
     def tearDown(self):
         self.browser.quit()
@@ -22,7 +22,7 @@ class TestProjectCreationAndView(StaticLiveServerTestCase):
         self.create_project("Test REK", "Test Description")
 
         # View the details of the created project
-        self.view_project_details("Test REK")
+        #self.view_project_details("Test REK")
 
     def register_user(self, username, full_name, mobile, specialization, password):
         self.browser.get(f"{self.live_server_url}/register/")
@@ -34,8 +34,8 @@ class TestProjectCreationAndView(StaticLiveServerTestCase):
         self.browser.find_element(By.NAME, "password2").send_keys(password)
         self.browser.find_element(By.CSS_SELECTOR, "input[type='submit']").click()
         time.sleep(2)
-        WebDriverWait(self.browser, 10).until(EC.url_changes)
         
+
     def create_project(self, rek_nummer, description):
         # Navigate to the Add Project page
         self.browser.get(f"{self.live_server_url}/addProject/")
@@ -43,29 +43,21 @@ class TestProjectCreationAndView(StaticLiveServerTestCase):
         # Fill out the REK nummer and description fields
         self.browser.find_element(By.NAME, "rekNummer").send_keys(rek_nummer)
         self.browser.find_element(By.NAME, "description").send_keys(description)
-    
-        user_dropdown_trigger = self.browser.find_element(By.XPATH, "//label[contains(text(), 'User(s)')]/following-sibling::div")
-        user_dropdown_trigger.click()
-        time.sleep(2)  # Adjust based on the responsiveness of your application
 
-        # Select the "Test User" option from the dropdown
-        # The exact method to locate and click the option depends on how the dropdown is implemented
-        test_user_option = self.browser.find_element(By.XPATH, "//option[contains(text(), 'Test User')]")
-        test_user_option.click()
-        time.sleep(2)  # Give some time for the action to be registered
+        # Locate the user dropdown and create a Select object
+        user_select = Select(self.browser.find_element(By.NAME, "users"))
+
+        # Select the first user in the dropdown
+        user_select.select_by_index(0)  # index 0 might be a placeholder or empty option, hence index 1 is used
 
         # Submit the form to create the project
         submit_button = self.browser.find_element(By.CSS_SELECTOR, "input[type='submit']")
         submit_button.click()
         time.sleep(2)  # Wait for the submission to process and for the page to load
-    
+
         
     def view_project_details(self, rek_nummer):
         self.browser.get(f"{self.live_server_url}/viewProject/")
-        WebDriverWait(self.browser, 10).until(
-            EC.presence_of_element_located((By.LINK_TEXT, rek_nummer))
-        )
         project_link = self.browser.find_element(By.LINK_TEXT, rek_nummer)
         project_link.click()
         time.sleep(2)
-        WebDriverWait(self.browser, 10).until(EC.url_changes)

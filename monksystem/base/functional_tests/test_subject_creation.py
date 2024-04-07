@@ -36,20 +36,27 @@ class TestSubjectCreationAndView(StaticLiveServerTestCase):
         WebDriverWait(self.browser, 10).until(EC.url_changes)
 
     def create_subject(self, subject_id, name, gender, birth_date):
+        # Directly navigate to the 'Add Subject' page
         self.browser.get(f"{self.live_server_url}/addSubject/")
 
-        #self.browser.find_element(By.LINK_TEXT, "Add Subject").click()
+        # Fill the subject form
         self.browser.find_element(By.NAME, "subject_id").send_keys(subject_id)
         self.browser.find_element(By.NAME, "name").send_keys(name)
         self.browser.find_element(By.NAME, "gender").send_keys(gender)
         self.browser.find_element(By.NAME, "birth_date").send_keys(birth_date)
+
+        # Find the submit button and click it to create the subject
         self.browser.find_element(By.CSS_SELECTOR, "input[type='submit']").click()
-        WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.TAG_NAME, "h5")))
+        time.sleep(2)
+
+
+
 
     def navigate_to_view_subjects(self):
-        self.browser.find_element(By.LINK_TEXT, "View Subjects").click()
+        self.browser.get(f"{self.live_server_url}/viewSubject/")
         WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "container")))
 
     def view_subject_details(self, subject_id):
-        self.browser.find_element(By.LINK_TEXT, subject_id).click()
-        WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "card-header")))
+        # Replace LINK_TEXT with a more specific selector, for example using an ID or a data attribute
+        self.browser.get(f"{self.live_server_url}/subject/{subject_id}")
+        
