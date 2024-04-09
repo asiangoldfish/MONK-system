@@ -69,9 +69,10 @@ def file(request, file_id):
         # If the file is not claimed by the current user, return an error or redirect
         return HttpResponseForbidden("You do not have permission to view this file.")
 
-    # If the user has claimed the file, proceed with showing the content
-    is_MFER_file = file.file.name.endswith('.MWF')
-    is_text_file = file.file.name.endswith('.txt')
+    # If the user has claimed the file, proceed with showing the content 
+    # Applying case-insensitive checks for file extensions
+    is_MFER_file = file.file.name.lower().endswith('.mwf')
+    is_text_file = file.file.name.lower().endswith('.txt')
 
     if is_MFER_file:
         try:
@@ -326,9 +327,10 @@ def claimFile(request, file_id):
     # Proceed with claiming the file
     FileClaim.objects.create(user=user_profile, file=file_to_claim)
     messages.success(request, "File claimed successfully.")
-
+    
     # Process the file if it is an MWF file
-    if file_to_claim.file.name.endswith('.MWF'):
+    if file_to_claim.file.name.lower().endswith('.mwf'):
+
         try:
             # Use the monklib module to get the header data
             header = get_header(file_to_claim.file.path)

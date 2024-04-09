@@ -34,6 +34,7 @@ class TestProjectCreationAndView(StaticLiveServerTestCase):
         # Select the first user in the dropdown
         user_select.select_by_index(0)  # index 0 might be a placeholder or empty option, hence index 1 is used
         # Submit the form to create the project
+        time.sleep(1)
         submit_button = self.browser.find_element(By.CSS_SELECTOR, "input[type='submit']")
         submit_button.click()
         time.sleep(2)  # Wait for the submission to process and for the page to load

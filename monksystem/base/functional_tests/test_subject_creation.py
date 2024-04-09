@@ -33,6 +33,7 @@ class TestSubjectCreationAndView(StaticLiveServerTestCase):
         self.browser.find_element(By.NAME, "name").send_keys(name)
         self.browser.find_element(By.NAME, "gender").send_keys(gender)
         self.browser.find_element(By.NAME, "birth_date").send_keys(birth_date)
+        time.sleep(1)
 
         # Find the submit button and click it to create the subject
         self.browser.find_element(By.CSS_SELECTOR, "input[type='submit']").click()
