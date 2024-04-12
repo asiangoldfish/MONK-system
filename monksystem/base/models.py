@@ -1,6 +1,7 @@
 from django.db import models
 from django import forms
 from django.contrib.auth.models import User
+import uuid
 from django.utils.timezone import now
 
 
@@ -27,6 +28,7 @@ class File(models.Model):
 
 class Subject(models.Model):
     subject_id = models.CharField(max_length=50, unique=True, null=True)
+    unique_identifier = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=50)
     gender = models.CharField(max_length=10)
     birth_date = models.DateField(null=True, blank=True)

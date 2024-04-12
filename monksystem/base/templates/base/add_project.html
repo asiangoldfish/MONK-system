@@ -22,7 +22,7 @@
         <label>Subject(s)</label>
         <select name="subjects" class="form-control" multiple>
             {% for subject in subjects %}
-            <option value="{{subject.id}}">{{subject.name}} [{{subject.id}}]</option>
+            <option value="{{subject.id}}">{{subject.name}} - {{subject.subject_id}} - [{{subject.id}}]</option>
             {% endfor %}
         </select>
         

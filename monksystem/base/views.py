@@ -16,7 +16,9 @@ from pathlib import Path
 from monklib import get_header
 from datetime import datetime
 from django.db.models import Q
-
+import uuid
+from datetime import datetime
+from django.db import IntegrityError
 
 
 #def home(request):
@@ -308,12 +310,12 @@ def importFile(request):
     return render(request, 'base/import_file.html', {'form': form})
 
 
+
+
 @login_required
 def claimFile(request, file_id):
-    # Attempt to claim the file
     file_to_claim = get_object_or_404(File, id=file_id)
 
-    # Check if the file has already been claimed
     if FileClaim.objects.filter(file=file_to_claim).exists():
         messages.error(request, "This file has already been claimed.")
         return redirect('viewFile')
@@ -321,52 +323,43 @@ def claimFile(request, file_id):
     try:
         user_profile = request.user.userprofile
     except UserProfile.DoesNotExist:
-        messages.error(request, "You are not registered as a user. Only user can claim files.")
+        messages.error(request, "You are not registered as a user profile.")
         return redirect('viewFile')
 
-    # Proceed with claiming the file
     FileClaim.objects.create(user=user_profile, file=file_to_claim)
     messages.success(request, "File claimed successfully.")
-    
-    # Process the file if it is an MWF file
+
     if file_to_claim.file.name.lower().endswith('.mwf'):
-
         try:
-            # Use the monklib module to get the header data
             header = get_header(file_to_claim.file.path)
+            subject_id = getattr(header, 'patientID', None)
+            time_stamp = getattr(header, 'measurementTimeISO', None)
+            subject_name = getattr(header, 'patientName', "Unknown")
+            subject_sex = getattr(header, 'patientSex', "Unknown")
+            birth_date_str = getattr(header, 'birthDateISO', None)
 
-            # Extract subject information from the header
-            subject_id = header.patientID
-            subject_name = header.patientName
-            subject_sex = header.patientSex
-            birth_date_str = header.birthDateISO
-
-            # Parse the birth date if it's not 'N/A' and in the expected format
-            if birth_date_str != 'N/A':
+            birth_date = None
+            if birth_date_str and birth_date_str != 'N/A':
                 try:
                     birth_date = datetime.strptime(birth_date_str, '%Y-%m-%d').date()
                 except ValueError:
-                    birth_date = None
-            else:
-                birth_date = None
-
-            # Check if the subject already exists
-            if not Subject.objects.filter(subject_id=subject_id).exists():
-                # Create a new subject object with the extracted data
-                Subject.objects.create(
-                    subject_id=subject_id,
-                    name=subject_name,
-                    gender=subject_sex,
-                    birth_date=birth_date,
-                    file=file_to_claim
-                )
-                messages.success(request, f"Subject with ID {subject_id} was successfully created.")
-            else:
-                messages.info(request, f"A subject with ID {subject_id} already exists.")
+                    pass
+        
+            new_subject = Subject.objects.create(
+                subject_id=time_stamp + " " + subject_id, 
+                name=subject_name,
+                gender=subject_sex,
+                birth_date=birth_date,
+                file=file_to_claim
+            )
+            messages.success(request, f"Subject created with ID: {new_subject.subject_id}")
+        except IntegrityError:
+                messages.info(request, "This patient already exists.")
+                return redirect('viewFile')
+            
         except Exception as e:
             messages.error(request, f"An error occurred while processing the file: {str(e)}")
     else:
         messages.error(request, "Unsupported file format. Only .MWF files are accepted.")
 
-    # Redirect back to the home page
     return redirect('viewFile')
