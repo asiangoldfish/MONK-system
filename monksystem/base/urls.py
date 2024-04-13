@@ -34,4 +34,6 @@ urlpatterns = [
     path('viewVitals/', views.viewVitals, name = "viewVitals"),
     #path('addVitals/', views.addVitals, name = "addVitals"),
     
+    path('download-csv/<int:file_id>/', views.download_csv, name='download_csv'),
+
 ]

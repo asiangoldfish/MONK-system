@@ -3,39 +3,28 @@
 {% load static %}
 
 {% block content %}
-
 <div class="container mt-5">
-    <h2 class="text-center mb-5">View subjects</h2>
-
+    <h2 class="text-center mb-5">View Subjects</h2>
     <div class="row">
         {% for subject in subjects %}
         <div class="col-sm-12 col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
             <div class="card shadow-sm w-100">
-                <a href="{% url 'subject' subject.subject_id %}" class="card-header bg-info text-white d-block" style="text-decoration: none;">
-                    <i class="bi bi-card-list" style="margin-right: 10px;"></i>Subject ID: {{ subject.subject_id }}
+                <a href="{% url 'subject' subject.subject_id %}" class="card-header bg-info text-white">
+                    Subject ID: {{ subject.subject_id }}
                 </a>
                 <div class="card-body">
-                    <p class="mb-2"><i class="bi bi-person-fill" style="margin-right: 10px;"></i><strong>Name:</strong> {{ subject.name }}</p>
-                    
-                    <!--
-                    <p class="mb-2"><i class="{% if subject.gender == 'Male' %}bi-gender-male{% elif subject.gender == 'Female' %}bi-gender-female{% else %}bi-gender-ambiguous{% endif %}" style="margin-right: 10px;"></i><strong>Gender:</strong> {{ subject.gender }}</p>
-                    <p class="mb-2"><i class="bi bi-calendar3" style="margin-right: 10px;"></i><strong>Birth Date:</strong> {{ subject.birth_date|date:"Y-m-d" }}</p>
-                    -->
-                    
+                    <p><strong>Name:</strong> {{ subject.name }}</p>
                     {% if subject.file %}
-                    <p class="mb-2"><i class="bi bi-file-earmark-text" style="margin-right: 10px;"></i><strong>File ID:</strong> <a href="{% url 'file' subject.file.id %}" class="text-primary">{{ subject.file.id }}</a></p>
+                    <p><strong>File ID:</strong> <a href="{% url 'file' subject.file.id %}">{{ subject.file.id }}</a></p>
                     {% else %}
-                    <p class="mb-2"><strong>File ID:</strong> No file associated</p>
+                    <p>No file associated</p>
                     {% endif %}
                 </div>
             </div>
         </div>
         {% empty %}
-        <div class="col-12">
-            <p class="text-center">No subjects found.</p>
-        </div>
+        <p class="text-center">No subjects found.</p>
         {% endfor %}
     </div>
 </div>
-
 {% endblock %}

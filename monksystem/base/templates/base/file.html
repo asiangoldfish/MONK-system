@@ -3,22 +3,20 @@
 {% block content %}
 <div class="container mt-5">
     <div class="card">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
            <strong> File Information </strong>
+           {% if is_MFER_file %}
+               <a href="{% url 'download_csv' file.id %}" class="btn btn-sm btn-success">Download CSV</a>
+           {% endif %}
         </div>
         <div class="card-body">
-            <!-- Use mb (margin-bottom) utility to add space below the title -->
             <h5 class="card-title mb-4">{{ file.title }}</h5>
             
             {% if is_text_file %}
-                <!-- Additional mb utility for space below subtitle -->
                 <h6 class="card-subtitle mb-2 text-muted mb-3">File Content:</h6>
-                <!-- Use p (padding) utility inside pre tag for internal spacing -->
                 <pre class="card-text p-3">{{ content }}</pre>
             {% elif is_MFER_file %}
-                <!-- Additional mb utility for space below subtitle -->
                 <h6 class="card-subtitle mb-2 text-muted mb-3">File Header:</h6>
-                <!-- Use p (padding) utility inside pre tag for internal spacing -->
                 <pre class="card-text p-3">{{ content }}</pre>
             {% else %}
                 <p class="card-text mb-3">Unsupported file format for direct display.</p>

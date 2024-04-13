@@ -1,6 +1,6 @@
 import os
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponseForbidden
 from django.contrib.auth.models import User
@@ -13,10 +13,9 @@ from .forms import FileForm, UserRegistrationForm
 from django.conf import settings
 from django.core.files import File as DjangoFile
 from pathlib import Path
-from monklib import get_header
+from monklib import get_header, convert_to_csv
 from datetime import datetime
 from django.db.models import Q
-import uuid
 from datetime import datetime
 from django.db import IntegrityError
 
@@ -310,8 +309,6 @@ def importFile(request):
     return render(request, 'base/import_file.html', {'form': form})
 
 
-
-
 @login_required
 def claimFile(request, file_id):
     file_to_claim = get_object_or_404(File, id=file_id)
@@ -363,3 +360,25 @@ def claimFile(request, file_id):
         messages.error(request, "Unsupported file format. Only .MWF files are accepted.")
 
     return redirect('viewFile')
+
+
+def download_csv(request, file_id):
+    file_instance = get_object_or_404(File, id=file_id)
+    input_path = file_instance.file.path
+    output_path = input_path.rsplit('.', 1)[0] + '_data.csv'
+
+    try:
+        # Call the convert_to_csv function from monklib
+        convert_to_csv(input_path, output_path)
+        
+        # Prepare response with the CSV file
+        with open(output_path, 'rb') as f:
+            response = HttpResponse(f, content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="{os.path.basename(output_path)}"'
+            return response
+    except Exception as e:
+        return HttpResponse(f"Error processing file: {str(e)}", status=400)
+    finally:
+        # Clean up: remove the generated CSV file after serving it
+        if os.path.exists(output_path):
+            os.remove(output_path)
