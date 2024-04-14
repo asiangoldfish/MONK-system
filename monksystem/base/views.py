@@ -62,32 +62,37 @@ def contactPage(request):
     return render(request, "base/contact.html")
 
 
+@login_required
 def file(request, file_id):
     file = get_object_or_404(File, id=file_id)
-    try:
-        claim = FileClaim.objects.get(file=file, user__user=request.user)
-    except FileClaim.DoesNotExist:
-        # If the file is not claimed by the current user, return an error or redirect
+    user_profile = request.user.userprofile
+
+    # Retrieve all subjects linked to this file
+    subjects = Subject.objects.filter(file=file)
+
+    # Find projects that include these subjects
+    projects = Project.objects.filter(subjects__in=subjects)
+
+    # Check if the user is part of any of these projects
+    if not projects.filter(users=user_profile).exists():
         return HttpResponseForbidden("You do not have permission to view this file.")
 
-    # If the user has claimed the file, proceed with showing the content 
-    # Applying case-insensitive checks for file extensions
+    # Assuming file content logic based on file type
     is_MFER_file = file.file.name.lower().endswith('.mwf')
     is_text_file = file.file.name.lower().endswith('.txt')
+    content = None
 
     if is_MFER_file:
         try:
-            content = get_header(file.file.path)
+            content = get_header(file.file.path)  # Assuming get_header is a function that reads MFER files
         except Exception as e:
-            content = f"Error reading file: {e}"    
+            content = f"Error reading file: {e}"
     elif is_text_file:
         try:
             with open(file.file.path, 'r') as f:
                 content = f.read()
         except Exception as e:
             content = f"Error reading file: {e}"
-    else:
-        content = None
 
     context = {'file': file, 'content': content, 'is_text_file': is_text_file, 'is_MFER_file': is_MFER_file}
     return render(request, 'base/file.html', context)
