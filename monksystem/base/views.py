@@ -18,13 +18,12 @@ from datetime import datetime
 from django.db.models import Q
 from datetime import datetime
 from django.db import IntegrityError
-
-
-#def home(request):
-#    subjects  = Subject.objects.all()
-#    context = {"subjects" : subjects}
-#    return render(request, 'base/home.html', context)
-
+import pandas as pd
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import numpy as np
+from django.http import JsonResponse
+from monklib import Data
 
 @login_required
 def homePage(request):
@@ -369,21 +368,44 @@ def claimFile(request, file_id):
 
 def download_csv(request, file_id):
     file_instance = get_object_or_404(File, id=file_id)
-    input_path = file_instance.file.path
-    output_path = input_path.rsplit('.', 1)[0] + '_data.csv'
+    file_path = file_instance.file.path
+    output_csv_path = file_path.rsplit('.', 1)[0] + '.csv'
 
+    # Convert the file to CSV format
+    convert_to_csv(file_path, output_csv_path)
+
+    # Serve the CSV file
+    with open(output_csv_path, 'rb') as f:
+        response = HttpResponse(f.read(), content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="{os.path.basename(output_csv_path)}"'
+        return response
+
+def print_mfer_header(request, file_id):
+    file_instance = get_object_or_404(File, id=file_id)
+    file_path = file_instance.file.path
+    
     try:
-        # Call the convert_to_csv function from monklib
-        convert_to_csv(input_path, output_path)
+        # Check if the file needs to be anonymized before printing the header
+        if 'anonymize' in request.POST and request.POST['anonymize'] == 'true':
+            anonymized_file_path = anonymize_data(file_path)
+            header_info = get_header(anonymized_file_path)
+        else:
+            header_info = get_header(file_path)
         
-        # Prepare response with the CSV file
-        with open(output_path, 'rb') as f:
-            response = HttpResponse(f, content_type='text/csv')
-            response['Content-Disposition'] = f'attachment; filename="{os.path.basename(output_path)}"'
-            return response
+        response = HttpResponse(header_info, content_type='text/plain')
+        response['Content-Disposition'] = f'attachment; filename="{file_instance.title}_header.txt"'
+        return response
     except Exception as e:
-        return HttpResponse(f"Error processing file: {str(e)}", status=400)
-    finally:
-        # Clean up: remove the generated CSV file after serving it
-        if os.path.exists(output_path):
-            os.remove(output_path)
+        return HttpResponse(f"An error occurred while retrieving the header: {str(e)}", status=500)
+
+
+def anonymize_data(file_path):
+    try:
+        data = Data(file_path)
+        data.anonymize()
+        anonymized_path = file_path.rsplit('.', 1)[0] + '_anonymized.mwf'
+        data.writeToBinary(anonymized_path)
+        return anonymized_path
+    except Exception as e:
+        raise Exception(f"Failed to anonymize and save the file: {str(e)}")
+

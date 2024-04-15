@@ -4,9 +4,23 @@
 <div class="container mt-5">
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-           <strong> File Information </strong>
+           <strong>File Information</strong>
+           
+           <!-- Form for downloading the CSV -->
            {% if is_MFER_file %}
-               <a href="{% url 'download_csv' file.id %}" class="btn btn-sm btn-success">Download CSV</a>
+               <form action="{% url 'download_csv' file.id %}" method="post">
+                   {% csrf_token %}
+                   <button type="submit" class="btn btn-sm btn-success">Download CSV</button>
+               </form>
+
+               <!-- Form for printing the MFER Header with an anonymization option -->
+               <form action="{% url 'print_mfer_header' file.id %}" method="post">
+                   {% csrf_token %}
+                   <label>
+                       <input type="checkbox" name="anonymize" value="true"> Anonymize before print
+                   </label>
+                   <button type="submit" class="btn btn-info">Print MFER Header</button>
+               </form>
            {% endif %}
         </div>
         <div class="card-body">
@@ -16,7 +30,7 @@
                 <h6 class="card-subtitle mb-2 text-muted mb-3">File Content:</h6>
                 <pre class="card-text p-3">{{ content }}</pre>
             {% elif is_MFER_file %}
-                <h6 class="card-subtitle mb-2 text-muted mb-3">File Header:</h6>
+                <h6 class="card-subtitle mb-2 text-muted mb-3">MFER File Header:</h6>
                 <pre class="card-text p-3">{{ content }}</pre>
             {% else %}
                 <p class="card-text mb-3">Unsupported file format for direct display.</p>
