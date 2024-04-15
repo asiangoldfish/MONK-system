@@ -1,29 +1,19 @@
 import os
+import numpy as np
+import pandas as pd
+from datetime import datetime
+import plotly.graph_objects as go
+from django.db import IntegrityError
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, FileResponse
-from django.core.files.storage import FileSystemStorage
-from django.http import HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.contrib import messages
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate,login,logout
 from .models import Subject, UserProfile, Project, Vitals, File, FileClaim
-from django.contrib import messages
 from .forms import FileForm, UserRegistrationForm  
-from django.conf import settings
-from django.core.files import File as DjangoFile
-from pathlib import Path
-from monklib import get_header, convert_to_csv
-from datetime import datetime
-from django.db.models import Q
-from datetime import datetime
-from django.db import IntegrityError
-import pandas as pd
-import plotly.graph_objects as go
+from monklib import get_header, convert_to_csv, Data
 from plotly.subplots import make_subplots
-import numpy as np
-from django.http import JsonResponse
-from monklib import Data
 
 @login_required
 def homePage(request):
@@ -222,20 +212,6 @@ def viewVitals(request):
     context = {'vitals' : vitals}
     return render(request,'base/view_vitals.html', context)
 
-#@login_required
-#def addUser(request):
-    
-    if request.method == "POST":
-        name = request.POST['name']
-        contact = request.POST['contact']
-        specialization = request.POST['specialization']
-        
-        User.objects.create(name=name, mobile=contact, specialization = specialization)
-        messages.success(request, "User added successfully.")
-        return redirect("viewUser")
-    
-    return render(request, 'base/add_user.html')
-
 
 @login_required
 def addSubject(request):
@@ -408,4 +384,3 @@ def anonymize_data(file_path):
         return anonymized_path
     except Exception as e:
         raise Exception(f"Failed to anonymize and save the file: {str(e)}")
-

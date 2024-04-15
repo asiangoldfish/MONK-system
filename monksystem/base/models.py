@@ -21,6 +21,7 @@ class UserProfile(models.Model):
 class File(models.Model):
     title = models.CharField(max_length=255)
     file = models.FileField(upload_to='nihon_kohden_files/')
+    anonymize = models.BooleanField(default=False)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
