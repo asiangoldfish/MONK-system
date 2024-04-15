@@ -5,7 +5,7 @@ from datetime import datetime
 import plotly.graph_objects as go
 from django.db import IntegrityError
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, HttpResponseBadRequest
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -14,6 +14,7 @@ from .models import Subject, UserProfile, Project, Vitals, File, FileClaim
 from .forms import FileForm, UserRegistrationForm  
 from monklib import get_header, convert_to_csv, Data
 from plotly.subplots import make_subplots
+from plotly.offline import plot
 
 @login_required
 def homePage(request):
@@ -61,19 +62,21 @@ def file(request, file_id):
 
     # Find projects that include these subjects
     projects = Project.objects.filter(subjects__in=subjects)
+    
+     # Check if the user is part of any of these projects or has claimed the file
+    user_in_project = projects.filter(users=user_profile).exists()
+    user_has_claimed = FileClaim.objects.filter(file=file, user=user_profile).exists()
 
-    # Check if the user is part of any of these projects
-    if not projects.filter(users=user_profile).exists():
+    if not (user_in_project or user_has_claimed):
         return HttpResponseForbidden("You do not have permission to view this file.")
 
-    # Assuming file content logic based on file type
     is_MFER_file = file.file.name.lower().endswith('.mwf')
     is_text_file = file.file.name.lower().endswith('.txt')
     content = None
 
     if is_MFER_file:
         try:
-            content = get_header(file.file.path)  # Assuming get_header is a function that reads MFER files
+            content = get_header(file.file.path)  
         except Exception as e:
             content = f"Error reading file: {e}"
     elif is_text_file:
@@ -212,7 +215,6 @@ def viewVitals(request):
     context = {'vitals' : vitals}
     return render(request,'base/view_vitals.html', context)
 
-
 @login_required
 def addSubject(request):
     if request.method == "POST":
@@ -342,7 +344,7 @@ def claimFile(request, file_id):
     return redirect('viewFile')
 
 
-def download_csv(request, file_id):
+def downloadCSV(request, file_id):
     file_instance = get_object_or_404(File, id=file_id)
     file_path = file_instance.file.path
     output_csv_path = file_path.rsplit('.', 1)[0] + '.csv'
@@ -356,14 +358,14 @@ def download_csv(request, file_id):
         response['Content-Disposition'] = f'attachment; filename="{os.path.basename(output_csv_path)}"'
         return response
 
-def print_mfer_header(request, file_id):
+def printMFERheader(request, file_id):
     file_instance = get_object_or_404(File, id=file_id)
     file_path = file_instance.file.path
     
     try:
         # Check if the file needs to be anonymized before printing the header
         if 'anonymize' in request.POST and request.POST['anonymize'] == 'true':
-            anonymized_file_path = anonymize_data(file_path)
+            anonymized_file_path = anonymizeData(file_path)
             header_info = get_header(anonymized_file_path)
         else:
             header_info = get_header(file_path)
@@ -375,7 +377,7 @@ def print_mfer_header(request, file_id):
         return HttpResponse(f"An error occurred while retrieving the header: {str(e)}", status=500)
 
 
-def anonymize_data(file_path):
+def anonymizeData(file_path):
     try:
         data = Data(file_path)
         data.anonymize()
@@ -384,3 +386,40 @@ def anonymize_data(file_path):
         return anonymized_path
     except Exception as e:
         raise Exception(f"Failed to anonymize and save the file: {str(e)}")
+
+
+def plotGraph(request, file_id):
+    try:
+        file_instance = get_object_or_404(File, id=file_id)
+        file_path = file_instance.file.path
+
+        if file_path.lower().endswith('.mwf'):
+            csv_path = file_path.rsplit('.', 1)[0] + '.csv'
+            convert_to_csv(file_path, csv_path)
+            file_path = csv_path  # Update file path to the new CSV file
+
+        df = pd.read_csv(file_path, nrows=int(request.GET.get('rows', 10000)))
+        df = df.apply(pd.to_numeric, errors='coerce').interpolate().dropna()
+
+        combined = request.GET.get('combined', 'false') == 'true'
+        if combined:
+            fig = go.Figure()
+            for column in df.columns:
+                fig.add_trace(go.Scatter(x=df.index, y=df[column], mode='lines', name=column))
+            fig.update_layout(title='Combined Graph', xaxis_title='Index', yaxis_title='Values')
+        else:
+            fig = make_subplots(rows=len(df.columns), cols=1, shared_xaxes=True)
+            for i, column in enumerate(df.columns):
+                fig.add_trace(go.Scatter(x=df.index, y=df[column], mode='lines', name=column), row=i+1, col=1)
+            fig.update_layout(title='Multiple Subplots Graph')
+
+        graph_html = plot(fig, output_type='div', include_plotlyjs=False)
+        
+        # Print the generated HTML for debugging
+        print(graph_html)
+
+        return JsonResponse({'graph_html': graph_html})
+    except ValueError as e:
+        return HttpResponseBadRequest(f"Invalid 'rows' parameter: {e}")
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

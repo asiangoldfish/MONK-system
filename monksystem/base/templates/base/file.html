@@ -8,13 +8,13 @@
            
            <!-- Form for downloading the CSV -->
            {% if is_MFER_file %}
-               <form action="{% url 'download_csv' file.id %}" method="post">
+               <form action="{% url 'downloadCSV' file.id %}" method="post">
                    {% csrf_token %}
                    <button type="submit" class="btn btn-sm btn-success">Download CSV</button>
                </form>
 
                <!-- Form for printing the MFER Header with an anonymization option -->
-               <form action="{% url 'print_mfer_header' file.id %}" method="post">
+               <form action="{% url 'printMFERheader' file.id %}" method="post">
                    {% csrf_token %}
                    <label>
                        <input type="checkbox" name="anonymize" value="true"> Anonymize before print

@@ -34,7 +34,9 @@ urlpatterns = [
     path('viewVitals/', views.viewVitals, name = "viewVitals"),
     #path('addVitals/', views.addVitals, name = "addVitals"),
     
-    path('download-csv/<int:file_id>/', views.download_csv, name='download_csv'),
-    path('print-header/<int:file_id>/', views.print_mfer_header, name='print_mfer_header'),
-
+    path('downloadCSV/<int:file_id>/', views.downloadCSV, name='downloadCSV'),
+    path('printMFERheader/<int:file_id>/', views.printMFERheader, name='printMFERheader'),
+        
+    path('plotGraph/<int:file_id>/', views.plotGraph, name='plotGraph'),
+    
 ]
