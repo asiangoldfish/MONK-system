@@ -390,18 +390,24 @@ def anonymizeData(file_path):
 
 def plotGraph(request, file_id):
     try:
+        # Fetch parameters from GET request
+        combined = request.GET.get('combined', 'false').lower() == 'true'
+        rows = int(request.GET.get('rows', 10000))
+
+        # Retrieve and handle the file
         file_instance = get_object_or_404(File, id=file_id)
-        file_path = file_instance.file.path
 
-        if file_path.lower().endswith('.mwf'):
-            csv_path = file_path.rsplit('.', 1)[0] + '.csv'
-            convert_to_csv(file_path, csv_path)
-            file_path = csv_path  # Update file path to the new CSV file
+        # Define the CSV path
+        csv_path = file_instance.file.path.rsplit('.', 1)[0] + '.csv'
 
-        df = pd.read_csv(file_path, nrows=int(request.GET.get('rows', 10000)))
+        # Ensure conversion logic is implemented
+        convert_to_csv(file_instance.file.path, csv_path)  
+
+        # Load and prepare the data
+        df = pd.read_csv(csv_path, nrows=rows)
         df = df.apply(pd.to_numeric, errors='coerce').interpolate().dropna()
 
-        combined = request.GET.get('combined', 'false') == 'true'
+        # Generate the plot
         if combined:
             fig = go.Figure()
             for column in df.columns:
@@ -410,16 +416,11 @@ def plotGraph(request, file_id):
         else:
             fig = make_subplots(rows=len(df.columns), cols=1, shared_xaxes=True)
             for i, column in enumerate(df.columns):
-                fig.add_trace(go.Scatter(x=df.index, y=df[column], mode='lines', name=column), row=i+1, col=1)
+                fig.add_trace(go.Scatter(x=df.index, y=df[column], mode='lines', name=column), row=i + 1, col=1)
             fig.update_layout(title='Multiple Subplots Graph')
 
-        graph_html = plot(fig, output_type='div', include_plotlyjs=False)
-        
-        # Print the generated HTML for debugging
-        print(graph_html)
-
+        # Convert the plot to HTML and send it back
+        graph_html = fig.to_html(full_html=False, include_plotlyjs=True)
         return JsonResponse({'graph_html': graph_html})
-    except ValueError as e:
-        return HttpResponseBadRequest(f"Invalid 'rows' parameter: {e}")
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)

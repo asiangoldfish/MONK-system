@@ -1,6 +1,7 @@
 {% extends 'main.html' %}
 
 {% block content %}
+
 <div class="container mt-5">
     <div class="card">
         <h5 class="card-header">Subject Information</h5>
@@ -21,29 +22,30 @@
                 <label for="rows-input">Number of Rows:</label>
                 <input type="number" id="rows-input" name="rows" value="10000" min="1">
             </div>
-            <button id="plot-graph" class="btn btn-primary" data-file-id="{{ subject.file.id }}">Plot Graph</button>
+            <button id="plot-graph" class="btn btn-primary" data-file-id="{{ subject.file.id }}">Plot Graph</button>            
         </div>
     </div>
     <div id="graph-container" class="mt-4"></div>
+    <div id="loading-message" style="display:none;" class="alert alert-info">
+        Loading... <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    </div>
+    
 </div>
 
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</div>
 
 <script>
     document.getElementById('plot-graph').addEventListener('click', function() {
         var file_id = this.getAttribute('data-file-id');
-        var combined = document.getElementById('combined-checkbox').checked;
+        var combined = document.getElementById('combined-checkbox').checked ? 'true' : 'false';
         var rows = document.getElementById('rows-input').value;
-
         var url = `/plotGraph/${file_id}/?combined=${combined}&rows=${rows}`;
         
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/json'
-            }
-        })
+        // Show loading message
+        var loadingMessage = document.getElementById('loading-message');
+        loadingMessage.style.display = 'block';
+
+        fetch(url)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok: ' + response.statusText);
@@ -54,12 +56,20 @@
             if (data.error) {
                 console.error('Error:', data.error);
             } else {
-                document.getElementById('graph-container').innerHTML = data.graph_html;
+                var plotWindow = window.open("", "_blank", "width=800,height=600");
+                plotWindow.document.write('<html><head><title>Plot Graph</title><script src="https://cdn.plot.ly/plotly-latest.min.js"><\/script></head><body>' + data.graph_html + '</body></html>');
+                plotWindow.document.close();
             }
-        })        
-        .catch((error) => {
+        })
+        .catch(error => {
             console.error('Error:', error);
+        })
+        .finally(() => {
+            // Hide loading message
+            loadingMessage.style.display = 'none';
         });
     });
 </script>
+
+
 {% endblock %}
