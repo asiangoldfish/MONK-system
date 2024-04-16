@@ -270,7 +270,6 @@ def addProject(request):
     return render(request, 'base/add_project.html', context)
 
 
-
 @login_required
 def importFile(request):
     form = FileForm()

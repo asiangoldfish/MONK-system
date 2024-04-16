@@ -3,38 +3,39 @@
 {% block content %}
 <div class="container mt-5">
     <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-           <strong>File Information</strong>
-           
-           <!-- Form for downloading the CSV -->
-           {% if is_MFER_file %}
-               <form action="{% url 'downloadCSV' file.id %}" method="post">
-                   {% csrf_token %}
-                   <button type="submit" class="btn btn-sm btn-success">Download CSV</button>
-               </form>
-
-               <!-- Form for printing the MFER Header with an anonymization option -->
-               <form action="{% url 'printMFERheader' file.id %}" method="post">
-                   {% csrf_token %}
-                   <label>
-                       <input type="checkbox" name="anonymize" value="true"> Anonymize before print
-                   </label>
-                   <button type="submit" class="btn btn-info">Print MFER Header</button>
-               </form>
-           {% endif %}
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <strong class="h4">File Information</strong> 
+            {% if is_MFER_file %}
+            <div class="d-flex align-items-center">
+                <!-- Form for downloading the CSV -->
+                <form action="{% url 'downloadCSV' file.id %}" method="post" class="mr-5"> 
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn">Download CSV</button>
+                </form>
+                
+                <!-- Form for printing the MFER header with anonymization option -->
+                <form action="{% url 'printMFERheader' file.id %}" method="post" class="d-flex align-items-center">
+                    {% csrf_token %}
+                    <div class="custom-control custom-switch mr-2">
+                        <input type="checkbox" class="custom-control-input" id="anonymizeSwitch" name="anonymize" value="true">
+                        <label class="custom-control-label" for="anonymizeSwitch">Anonymize</label>
+                    </div>
+                    <button type="submit" class="btn btn-info btn">Print MFER Header</button>
+                </form>
+            </div>
+            {% endif %}
         </div>
         <div class="card-body">
             <h5 class="card-title mb-4">{{ file.title }}</h5>
-            
             {% if is_text_file %}
-                <h6 class="card-subtitle mb-2 text-muted mb-3">File Content:</h6>
+                <h6 class="card-subtitle mb-2 text-muted">File Content:</h6>
                 <pre class="card-text p-3">{{ content }}</pre>
             {% elif is_MFER_file %}
-                <h6 class="card-subtitle mb-2 text-muted mb-3">MFER File Header:</h6>
+                <h6 class="card-subtitle mb-2 text-muted">MFER File Header:</h6>
                 <pre class="card-text p-3">{{ content }}</pre>
             {% else %}
-                <p class="card-text mb-3">Unsupported file format for direct display.</p>
-                <a href="{{ file.file.url }}" class="btn btn-primary" target="_blank">Download File</a>
+                <p class="card-text">Unsupported file format for direct display.</p>
+                <a href="{{ file.file.url }}" class="btn btn-primary btn-lg" target="_blank">Download File</a>
             {% endif %}
         </div>
     </div>

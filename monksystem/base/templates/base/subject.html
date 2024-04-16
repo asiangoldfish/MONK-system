@@ -6,23 +6,27 @@
     <div class="card">
         <h5 class="card-header">Subject Information</h5>
         <div class="card-body">
-            <p class="card-text"><strong>ID:</strong> {{ subject.subject_id|default:"Not available" }}</p>
-            <p class="card-title"><strong>Name:</strong> {{ subject.name|default:"Not available" }}</p>
-            <p class="card-text"><strong>Gender:</strong> {{ subject.gender|default:"Not available" }}</p>
+            <p class="card-text"><strong><i class="bi bi-person-square" style="margin-right: 10px;"></i>ID:</strong> {{ subject.subject_id|default:"Not available" }}</p>
+            <p class="card-title"><strong><i class="bi bi-person-circle" style="margin-right: 10px;"></i>Name:</strong> {{ subject.name|default:"Not available" }}</p>
+            <p class="card-text"><strong><i class="bi bi-gender-ambiguous" style="margin-right: 10px;"></i>Gender:</strong> {{ subject.gender|default:"Not available" }}</p>
             <p class="card-text">
-                <strong>Birth Date:</strong> {{ subject.birth_date|date:"Y-m-d"|default:"Not available" }}
+                <strong><i class="bi bi-calendar-event" style="margin-right: 10px;"></i>Birth Date:</strong> {{ subject.birth_date|date:"Y-m-d"|default:"Not available" }}
             </p>
         </div>
         <div class="card-footer">
             <div class="form-group">
-                <label for="combined-checkbox">Combined Graph:</label>
+                <label for="combined-checkbox"><i class="bi bi-diagram-3" style="margin-right: 10px;"></i>Combined Graph:</label>
                 <input type="checkbox" id="combined-checkbox" name="combined">
             </div>
             <div class="form-group">
-                <label for="rows-input">Number of Rows:</label>
+                <label for="rows-input"><i class="bi bi-list-ol" style="margin-right: 10px;"></i>Number of Rows:</label>
                 <input type="number" id="rows-input" name="rows" value="10000" min="1">
             </div>
-            <button id="plot-graph" class="btn btn-primary" data-file-id="{{ subject.file.id }}">Plot Graph</button>            
+            <div class="card-footer" style="display: flex; justify-content: center; align-items: center;">
+                <button id="plot-graph" class="btn btn-primary btn-lg" data-file-id="{{ subject.file.id }}" style="width: 60%; margin-top: 1px;">
+                    Plot Graph</button>
+            </div>
+            
         </div>
     </div>
     <div id="graph-container" class="mt-4"></div>

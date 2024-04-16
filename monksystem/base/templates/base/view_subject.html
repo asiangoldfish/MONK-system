@@ -4,26 +4,30 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-center mb-5">View Subjects</h2>
+    <h2 class="text-center mb-5"><i class="bi bi-journal-bookmark-fill" style="margin-right: 10px;"></i>View Subjects</h2>
     <div class="row">
         {% for subject in subjects %}
         <div class="col-sm-12 col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
             <div class="card shadow-sm w-100">
                 <a href="{% url 'subject' subject.subject_id %}" class="card-header bg-info text-white">
+                    <i class="bi bi-card-heading" style="margin-right: 10px;"></i>
                     Subject ID: {{ subject.subject_id }}
                 </a>
                 <div class="card-body">
-                    <p><strong>Name:</strong> {{ subject.name }}</p>
+                    <p><strong><i class="bi bi-person-lines-fill" style="margin-right: 5px;"></i>Name:</strong> {{ subject.name }}</p>
                     {% if subject.file %}
-                    <p><strong>File ID:</strong> <a href="{% url 'file' subject.file.id %}">{{ subject.file.id }}</a></p>
+                    <p><strong> <i class="bi bi-file-earmark-text-fill" style="margin-right: 5px; color: #007bff;"></i>File ID:</strong> 
+                        <a href="{% url 'file' subject.file.id %}" style="font-weight: bold; color: #28a745; background-color: #e9f5ec; padding: 2px 4px; border-radius: 4px;"> 
+                            {{ subject.file.id }}</a>
+                    </p>
                     {% else %}
-                    <p>No file associated</p>
+                    <p><i class="bi bi-exclamation-triangle-fill" style="margin-right: 5px;"></i>No file associated</p>
                     {% endif %}
                 </div>
             </div>
         </div>
         {% empty %}
-        <p class="text-center">No subjects found.</p>
+        <p class="text-center"><i class="bi bi-folder-x" style="margin-right: 5px;"></i>No subjects found.</p>
         {% endfor %}
     </div>
 </div>
