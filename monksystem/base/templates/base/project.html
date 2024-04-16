@@ -5,12 +5,12 @@
     <div class="card">
         <h5 class="card-header">Project Details</h5>
         <div class="card-body">
-            <p class="card-title"><strong>REK-number: </strong>{{ project.rekNummer }}</p>
-            <p class="card-text"><strong>Project ID:</strong> {{ project.id }}</p>
-            <p class="card-text"><strong>Description:</strong> {{ project.description }}</p>
+            <p class="card-title"><strong><i class="bi bi-card-list" style="margin-right: 5px;"></i>REK-number: </strong>{{ project.rekNummer }}</p>
+            <p class="card-text"><strong><i class="bi bi-card-list" style="margin-right: 5px;"></i>Project ID:</strong> {{ project.id }}</p>
+            <p class="card-text"><strong><i class="bi bi-textarea-resize" style="margin-right: 5px;"></i>Description:</strong> {{ project.description }}</p>
             
             <!-- Displaying multiple users -->
-            <p class="card-text"><strong>Users involved:</strong>
+            <p class="card-text"><strong><i class="bi bi-people-fill" style="margin-right: 5px;"></i>Users involved:</strong>
                 {% for user in project.users.all %}
                     {{ user.name }}{% if not forloop.last %}, {% endif %}
                 {% empty %}
@@ -19,7 +19,7 @@
             </p>
             
             <!-- Displaying multiple subjects -->
-            <p class="card-text"><strong>Subjects involved:</strong>
+            <p class="card-text"><strong><i class="bi bi-journal-bookmark-fill" style="margin-right: 5px;"></i>Subjects involved:</strong>
                 {% for subject in project.subjects.all %}
                     {{ subject.name }}{% if not forloop.last %}, {% endif %}
                 {% empty %}
@@ -27,8 +27,8 @@
                 {% endfor %}
             </p>
             
-            <p class="card-text"><strong>Updated:</strong> {{ project.updated|date:"Y-m-d H:i" }}</p>
-            <p class="card-text"><strong>Created:</strong> {{ project.created|date:"Y-m-d H:i" }}</p>
+            <p class="card-text"><strong><i class="bi bi-calendar-event" style="margin-right: 5px;"></i>Updated:</strong> {{ project.updated|date:"Y-m-d H:i" }}</p>
+            <p class="card-text"><strong><i class="bi bi-calendar-plus" style="margin-right: 5px;"></i>Created:</strong> {{ project.created|date:"Y-m-d H:i" }}</p>
         </div>
     </div>
 </div>
