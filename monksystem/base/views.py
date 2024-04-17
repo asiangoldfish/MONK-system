@@ -343,7 +343,7 @@ def claimFile(request, file_id):
     return redirect('viewFile')
 
 
-def downloadCSV(request, file_id):
+def downloadFormatCSV(request, file_id):
     file_instance = get_object_or_404(File, id=file_id)
     file_path = file_instance.file.path
     output_csv_path = file_path.rsplit('.', 1)[0] + '.csv'
@@ -357,7 +357,8 @@ def downloadCSV(request, file_id):
         response['Content-Disposition'] = f'attachment; filename="{os.path.basename(output_csv_path)}"'
         return response
 
-def printMFERheader(request, file_id):
+
+def downloadHeaderMFER(request, file_id):
     file_instance = get_object_or_404(File, id=file_id)
     file_path = file_instance.file.path
     
@@ -376,12 +377,34 @@ def printMFERheader(request, file_id):
         return HttpResponse(f"An error occurred while retrieving the header: {str(e)}", status=500)
 
 
+def downloadRawDataMFER(request, file_id):
+    file_instance = get_object_or_404(File, id=file_id)
+
+    if not file_instance.file.name.lower().endswith('.mwf'):
+        return HttpResponseBadRequest("Unsupported file format.")
+
+    try:
+        file_path = file_instance.file.path
+        # Check if anonymization is requested
+        if request.GET.get('anonymize') == 'true':
+            anonymized_path = anonymizeData(file_path)
+            file_path = anonymized_path
+
+        with open(file_path, 'rb') as file:
+            content = file.read()
+            response = HttpResponse(content, content_type="text/plain")
+            response['Content-Disposition'] = f'attachment; filename="{file_instance.title}_data.txt"'
+            return response
+    except Exception as e:
+        return HttpResponse(f"An error occurred while reading the file: {str(e)}", status=500)
+
+
 def anonymizeData(file_path):
     try:
         data = Data(file_path)
         data.anonymize()
         anonymized_path = file_path.rsplit('.', 1)[0] + '_anonymized.mwf'
-        data.writeToBinary(anonymized_path)
+        #data.writeToBinary(anonymized_path)
         return anonymized_path
     except Exception as e:
         raise Exception(f"Failed to anonymize and save the file: {str(e)}")
@@ -423,3 +446,13 @@ def plotGraph(request, file_id):
         return JsonResponse({'graph_html': graph_html})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+#def setChannels(file_path):
+    try:
+        data = Data(file_path)
+        output_path = data.setChannelSelection(4,False)
+        data.writeToBinary(output_path)
+        return output_path
+    except Exception as e:
+        raise Exception(f"Failed to anonymize and save the file: {str(e)}")

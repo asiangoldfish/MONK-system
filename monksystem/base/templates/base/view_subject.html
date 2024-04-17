@@ -16,9 +16,9 @@
                 <div class="card-body">
                     <p><strong><i class="bi bi-person-lines-fill" style="margin-right: 5px;"></i>Name:</strong> {{ subject.name }}</p>
                     {% if subject.file %}
-                    <p><strong> <i class="bi bi-file-earmark-text-fill" style="margin-right: 5px; color: #007bff;"></i>File ID:</strong> 
+                    <p><strong> <i class="bi bi-file-earmark-text-fill" style="margin-right: 5px; color: #007bff;"></i>File:</strong> 
                         <a href="{% url 'file' subject.file.id %}" style="font-weight: bold; color: #28a745; background-color: #e9f5ec; padding: 2px 4px; border-radius: 4px;"> 
-                            {{ subject.file.id }}</a>
+                            {{ subject.file.title }}</a>
                     </p>
                     {% else %}
                     <p><i class="bi bi-exclamation-triangle-fill" style="margin-right: 5px;"></i>No file associated</p>

@@ -25,12 +25,12 @@
                         {% endif %}
                         <div class="card-body">
                             {% if claim %}
-                                <p class="card-text"><i class="bi bi-person-check-fill"></i> Claimed By: <a href="{% url 'user' claim.user.id %}">{{ claim.user.name }}</a></p>
-                                <p class="card-text"><i class="bi bi-clock-fill"></i> Claimed At: {{ claim.claimed_at|date:"Y-m-d H:i" }}</p>
-                                <button class="btn btn-secondary btn-sm" disabled><i class="bi bi-x-circle-fill"></i> Already Claimed</button>
+                                <p class="card-text"><i class="bi bi-person-check-fill"></i> Imported By: <a href="{% url 'user' claim.user.id %}">{{ claim.user.name }}</a></p>
+                                <p class="card-text"><i class="bi bi-clock-fill"></i> Imported At: {{ claim.claimed_at|date:"Y-m-d H:i" }}</p>
+                                <button class="btn btn-secondary btn-sm" disabled><i class="bi bi-x-circle-fill"></i> Already Imported</button>
                             {% else %}
-                                <p class="card-text">Status: <span class="text-muted">Not Claimed</span></p>
-                                <a href="{% url 'claimFile' file.id %}" class="btn btn-success btn-sm"><i class="bi bi-check-circle-fill"></i> Claim</a>
+                                <p class="card-text">Status: <span class="text-muted">Not Imported</span></p>
+                                <a href="{% url 'claimFile' file.id %}" class="btn btn-success btn-sm"><i class="bi bi-check-circle-fill"></i> Import</a>
                             {% endif %}
                         </div>
                     </div>

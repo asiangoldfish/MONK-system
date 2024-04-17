@@ -34,9 +34,10 @@ urlpatterns = [
     path('viewVitals/', views.viewVitals, name = "viewVitals"),
     #path('addVitals/', views.addVitals, name = "addVitals"),
     
-    path('downloadCSV/<int:file_id>/', views.downloadCSV, name='downloadCSV'),
-    path('printMFERheader/<int:file_id>/', views.printMFERheader, name='printMFERheader'),
-        
+    path('download-CSV-Format/<int:file_id>/', views.downloadFormatCSV, name='downloadFormatCSV'),
+    path('download-MFER-Header/<int:file_id>/', views.downloadHeaderMFER, name='downloadHeaderMFER'),
+    path('download-Raw-Data-MFER/<int:file_id>/', views.downloadRawDataMFER, name='downloadRawDataMFER'),
     path('plotGraph/<int:file_id>/', views.plotGraph, name='plotGraph'),
+    
     
 ]

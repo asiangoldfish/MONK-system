@@ -4,7 +4,7 @@
 
 <div class="container mt-5">
     <div class="card">
-        <h5 class="card-header">Subject Information</h5>
+        <h5 class="card-header">Subject Details</h5>
         <div class="card-body">
             <p class="card-text"><strong><i class="bi bi-person-square" style="margin-right: 10px;"></i>ID:</strong> {{ subject.subject_id|default:"Not available" }}</p>
             <p class="card-title"><strong><i class="bi bi-person-circle" style="margin-right: 10px;"></i>Name:</strong> {{ subject.name|default:"Not available" }}</p>
@@ -24,7 +24,7 @@
             </div>
             <div class="card-footer" style="display: flex; justify-content: center; align-items: center;">
                 <button id="plot-graph" class="btn btn-primary btn-lg" data-file-id="{{ subject.file.id }}" style="width: 60%; margin-top: 1px;">
-                    Plot Graph</button>
+                    View</button>
             </div>
             
         </div>
