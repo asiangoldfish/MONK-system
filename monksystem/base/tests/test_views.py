@@ -2,7 +2,7 @@ import os
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
-from base.models import UserProfile, File, Subject, Project, Vitals, FileClaim
+from base.models import UserProfile, File, Subject, Project, FileClaim
 from django.core.files.uploadedfile import SimpleUploadedFile
 import tempfile
 

@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate,login,logout
-from .models import Subject, UserProfile, Project, Vitals, File, FileClaim
+from .models import Subject, UserProfile, Project, File, FileClaim
 from .forms import FileForm, UserRegistrationForm  
 from monklib import get_header, convert_to_csv, Data
 from plotly.subplots import make_subplots
@@ -206,14 +206,6 @@ def viewFile(request):
     context = {'files' : files}
     return render(request,'base/view_file.html', context)
 
-
-@login_required
-def viewVitals(request):
-    
-    vitals = Vitals.objects.all()
-
-    context = {'vitals' : vitals}
-    return render(request,'base/view_vitals.html', context)
 
 @login_required
 def addSubject(request):

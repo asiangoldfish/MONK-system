@@ -53,21 +53,6 @@ class Project(models.Model):
     def __str__(self):
         return self.rekNummer
     
-class Vitals(models.Model):
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE) 
-    description = models.TextField(null = True, blank = True) # Description of appointment. Makes sure the values can be left blank. 
-    heartRate = models.IntegerField(null=True)
-    oxygen = models.IntegerField(null=True)
-    bodyTemperature = models.IntegerField(null=True)
-    respirationRate = models.IntegerField(null=True)
-    bloodPressure = models.IntegerField(null=True)
-    updated = models.DateTimeField(auto_now = True) # Takes a snapshot of anytime the table (model instance) is updated. Takes a timestamp every time appointment is updated.
-    created = models.DateTimeField(auto_now_add = True) # Takes a timestamp of when the instance was created.
-    
-    def __str__(self):
-        return self.subject.name
-
-
 # Model for file claims
 class FileClaim(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)

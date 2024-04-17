@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from base.models import UserProfile, File, Subject, Project, Vitals, FileClaim
+from base.models import UserProfile, File, Subject, Project, FileClaim
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 import datetime
@@ -48,17 +48,6 @@ class TestModels(TestCase):
         project.users.add(self.user_profile)
         self.assertEqual(str(project), 'R001')
 
-    def test_vitals_creation_and_str(self):
-        vitals = Vitals.objects.create(
-            subject=self.subject,
-            description='Test Vitals',
-            heartRate=80,
-            oxygen=98,
-            bodyTemperature=37,
-            respirationRate=20,
-            bloodPressure=120
-        )
-        self.assertEqual(str(vitals), 'Test Subject')
 
     def test_file_claim_creation_and_str(self):
         file_claim = FileClaim.objects.create(

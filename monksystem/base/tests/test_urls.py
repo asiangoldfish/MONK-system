@@ -80,12 +80,6 @@ class TestUrls(SimpleTestCase):
         url = reverse('addProject')
         resolved = resolve(url).func
         self.assertEquals(resolved, addProject)
-
-    def test_view_vitals_url_resolves(self):
-        # Testing the URL for viewing all vitals
-        url = reverse('viewVitals')
-        resolved = resolve(url).func
-        self.assertEquals(resolved, viewVitals)
     
     def test_view_file_url_resolves(self):
         url = reverse('viewFile')

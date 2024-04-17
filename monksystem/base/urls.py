@@ -21,7 +21,6 @@ urlpatterns = [
 
     path('user/<str:pk>', views.user, name="user"),
     path('viewUser/', views.viewUser, name = "viewUser"),
-    #path('addUser/', views.addUser, name = "addUser"),
 
     path('subject/<str:pk>', views.subject, name="subject"),
     path('viewSubject/', views.viewSubject, name = "viewSubject"),
@@ -30,9 +29,6 @@ urlpatterns = [
     path('project/<str:pk>', views.project, name="project"),
     path('viewProject/', views.viewProject, name = "viewProject"),
     path('addProject/', views.addProject, name = "addProject"),
-
-    path('viewVitals/', views.viewVitals, name = "viewVitals"),
-    #path('addVitals/', views.addVitals, name = "addVitals"),
     
     path('download-CSV-Format/<int:file_id>/', views.downloadFormatCSV, name='downloadFormatCSV'),
     path('download-MFER-Header/<int:file_id>/', views.downloadHeaderMFER, name='downloadHeaderMFER'),
