@@ -35,5 +35,7 @@ urlpatterns = [
     path('download-Raw-Data-MFER/<int:file_id>/', views.downloadRawDataMFER, name='downloadRawDataMFER'),
     path('plotGraph/<int:file_id>/', views.plotGraph, name='plotGraph'),
     
+    path('download-csv/<int:file_id>/', views.downloadCSV, name='downloadCSV'),
+
     
 ]

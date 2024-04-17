@@ -13,7 +13,21 @@
                 <strong><i class="bi bi-calendar-event" style="margin-right: 10px;"></i>Birth Date:</strong> {{ subject.birth_date|date:"Y-m-d"|default:"Not available" }}
             </p>
         </div>
+        
         <div class="card-footer">
+            <!--
+            <div class="form-group">
+                {% for channel in subject.file.channels %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="channels" id="channel_{{ forloop.counter0 }}" value="{{ channel }}" checked>
+                    <label class="form-check-label" for="channel_{{ forloop.counter0 }}">
+                        {{ channel }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+            -->
+
             <div class="form-group">
                 <label for="combined-checkbox"><i class="bi bi-diagram-3" style="margin-right: 10px;"></i>Combined Graph:</label>
                 <input type="checkbox" id="combined-checkbox" name="combined">
@@ -26,8 +40,8 @@
                 <button id="plot-graph" class="btn btn-primary btn-lg" data-file-id="{{ subject.file.id }}" style="width: 60%; margin-top: 1px;">
                     View</button>
             </div>
-            
         </div>
+        
     </div>
     <div id="graph-container" class="mt-4"></div>
     <div id="loading-message" style="display:none;" class="alert alert-info">
@@ -43,6 +57,9 @@
         var file_id = this.getAttribute('data-file-id');
         var combined = document.getElementById('combined-checkbox').checked ? 'true' : 'false';
         var rows = document.getElementById('rows-input').value;
+        //var selectedChannels = Array.from(document.querySelectorAll('input[name="channels"]:checked')).map(el => el.value);
+        //var url = `/plotGraph/${file_id}/?combined=${combined}&rows=${rows}&channels=${selectedChannels.join(',')}`;
+
         var url = `/plotGraph/${file_id}/?combined=${combined}&rows=${rows}`;
         
         // Show loading message

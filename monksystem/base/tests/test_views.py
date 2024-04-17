@@ -31,9 +31,6 @@ class TestViews(TestCase):
         self.project.users.add(self.user_profile)
         self.project.subjects.add(self.subject)
         
-        # Create a Vitals instance
-        self.vitals = Vitals.objects.create(subject=self.subject, description='Test Vitals', heartRate=80)
-
         # Create a FileClaim instance
         self.file_claim = FileClaim.objects.create(user=self.user_profile, file=self.file)
     

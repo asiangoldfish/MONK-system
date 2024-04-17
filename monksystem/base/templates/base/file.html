@@ -1,41 +1,55 @@
 {% extends 'main.html' %}
 
 {% block content %}
+<h2 class="text-center mt-4 mb-3 pt-3">File Details</h2>  <!-- Added margin-top (mt-4) and padding-top (pt-3) -->
 <div class="container mt-5">
     <div class="card">
-        <div class="card-header d-flex align-items-center justify-content-between">
-            <strong class="h4">File Details</strong> 
+        <!-- Header for checkboxes -->
+        <div class="card-header">
+            <form action="{% url 'downloadCSV' file.id %}" method="post" class="d-flex justify-content-between align-items-center">
+                {% csrf_token %}
+                <!-- Checkbox Section -->
+                <div class="form-check form-check-inline d-flex flex-wrap">
+                    {% for channel in content.channels %}
+                    <div class="form-check ml-2">
+                        <input class="form-check-input" type="checkbox" name="channels" value="{{ channel.attribute }}" id="channel_{{ forloop.counter0 }}" checked>
+                        <label class="form-check-label" for="channel_{{ forloop.counter0 }}">
+                            {{ channel.attribute }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                <!-- Download CSV Button -->
+                <button type="submit" class="btn btn-success">Download CSV</button>
+            </form>
+        </div>
+
+        <!-- Second Header for file details -->
+        <div class="card-header d-flex justify-content-center">
             {% if is_MFER_file %}
             <div class="d-flex align-items-center">
-                
-                <!-- Form for printing the MFER header with anonymization option -->
+                <!-- Forms for downloading MFER header/data with anonymization option -->
                 <form action="{% url 'downloadHeaderMFER' file.id %}" method="post" class="mr-5 d-flex align-items-center">
                     {% csrf_token %}
                     <div class="custom-control custom-switch mr-2">
                         <input type="checkbox" class="custom-control-input" id="anonymizeSwitch" name="anonymize" value="true">
                         <label class="custom-control-label" for="anonymizeSwitch">Anonymize</label>
                     </div>
-                    <button type="submit" class="btn btn-info btn">Download MFER Header</button>
+                    <button type="submit" class="btn btn-info">Download MFER Header</button>
                 </form>
-
-                <!-- Form for downloading the MFER data as a text file with anonymization option -->
                 <form action="{% url 'downloadRawDataMFER' file.id %}" method="get" class="mr-5 d-flex align-items-center">
+                    {% csrf_token %}
                     <div class="custom-control custom-switch mr-2">
                         <input type="checkbox" class="custom-control-input" id="anonymizeData" name="anonymize" value="true">
                         <label class="custom-control-label" for="anonymizeData">Anonymize</label>
                     </div>
                     <button type="submit" class="btn btn-info">Download Raw MFER</button>
                 </form>
-
-                 <!-- Form for downloading the CSV -->
-                 <form action="{% url 'downloadFormatCSV' file.id %}" method="post" class="mr-5"> 
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-success btn">Download CSV</button>
-                </form>
-
             </div>
             {% endif %}
         </div>
+
+        <!-- Card Body for displaying content -->
         <div class="card-body">
             <h4 class="card-title mb-4">Title: {{ file.title }}</h4>
             <h5 class="card-title mb-4">ID: {{ file.id }}</h5>

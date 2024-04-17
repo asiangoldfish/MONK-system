@@ -396,7 +396,7 @@ def anonymizeData(file_path):
         data = Data(file_path)
         data.anonymize()
         anonymized_path = file_path.rsplit('.', 1)[0] + '_anonymized.mwf'
-        #data.writeToBinary(anonymized_path)
+        data.writeToBinary(anonymized_path)
         return anonymized_path
     except Exception as e:
         raise Exception(f"Failed to anonymize and save the file: {str(e)}")
@@ -407,6 +407,7 @@ def plotGraph(request, file_id):
         # Fetch parameters from GET request
         combined = request.GET.get('combined', 'false').lower() == 'true'
         rows = int(request.GET.get('rows', 10000))
+        #selected_channels = request.GET.get('channels', '').split(',')
 
         # Retrieve and handle the file
         file_instance = get_object_or_404(File, id=file_id)
@@ -420,6 +421,7 @@ def plotGraph(request, file_id):
         # Load and prepare the data
         df = pd.read_csv(csv_path, nrows=rows)
         df = df.apply(pd.to_numeric, errors='coerce').interpolate().dropna()
+        #df = df[selected_channels]  # Filter only selected channels
 
         # Generate the plot
         if combined:
@@ -440,11 +442,28 @@ def plotGraph(request, file_id):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-#def setChannels(file_path):
-    try:
-        data = Data(file_path)
-        output_path = data.setChannelSelection(4,False)
-        data.writeToBinary(output_path)
-        return output_path
-    except Exception as e:
-        raise Exception(f"Failed to anonymize and save the file: {str(e)}")
+def downloadCSV(request, file_id):
+    if request.method == 'POST':
+        selected_channels = request.POST.getlist('channels')  # Get selected channels from checkboxes
+        file = get_object_or_404(File, id=file_id)
+        header = get_header(file.file.path)  # Assuming this function gives you full header data including channels
+
+        # Filter data based on selected_channels
+        data = Data(file.file.path)  # You need a method here to filter data
+        for index, channel in enumerate(header.channels):
+            if channel.attribute in selected_channels:
+                data.setChannelSelection(index, True)
+            else:
+                data.setChannelSelection(index, False)
+        
+        # Generate CSV
+        output_path = file.file.path.rsplit('.', 1)[0] + '_selected.csv'
+        data.writeToCsv(output_path)
+
+        # Serve the CSV file
+        with open(output_path, 'rb') as f:
+            response = HttpResponse(f.read(), content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="{os.path.basename(output_path)}"'
+            return response
+    else:
+        return HttpResponseForbidden("Invalid request")
