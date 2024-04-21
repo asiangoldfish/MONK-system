@@ -185,13 +185,13 @@ def viewSubject(request):
 
 @login_required
 def viewProject(request):
-    # Check if the logged-in user is associated with a Doctor instance
+    # Check if the logged-in user is associated with a user instance
     try:
         user_profile = request.user.userprofile
-        # Filter projects where the current user's doctor instance is in the project's doctors
+        # Filter projects where the current user's instance is in the project's users
         projects = Project.objects.filter(users=user_profile)
     except UserProfile.DoesNotExist:
-        # If the user does not have an associated Doctor instance, return an empty project list
+        # If the user does not have an associate instance, return an empty project list
         projects = Project.objects.none()
     
     context = {'projects': projects}
@@ -336,18 +336,39 @@ def claimFile(request, file_id):
 
 
 def downloadFormatCSV(request, file_id):
-    file_instance = get_object_or_404(File, id=file_id)
-    file_path = file_instance.file.path
-    output_csv_path = file_path.rsplit('.', 1)[0] + '.csv'
+    if request.method == 'POST':
+        # Get selected channels from checkboxes
+        selected_channels = request.POST.getlist('channels')
 
-    # Convert the file to CSV format
-    convert_to_csv(file_path, output_csv_path)
+        # Get start and end times in seconds
+        start_time_str = request.POST.get('start_time')
+        end_time_str = request.POST.get('end_time')
+        start_seconds = float(start_time_str) if start_time_str else 0.0
+        end_seconds = float(end_time_str) if end_time_str else 0.0
 
-    # Serve the CSV file
-    with open(output_csv_path, 'rb') as f:
-        response = HttpResponse(f.read(), content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="{os.path.basename(output_csv_path)}"'
-        return response
+        file = get_object_or_404(File, id=file_id)
+        header = get_header(file.file.path)
+        data = Data(file.file.path)
+
+        # Filter data based on selected channels
+        for index, channel in enumerate(header.channels):
+            data.setChannelSelection(index, channel.attribute in selected_channels)
+
+        # Set interval selection if times are provided
+        if start_time_str or end_time_str:
+            data.setIntervalSelection(start_seconds, end_seconds)
+
+        # Generate CSV
+        output_path = file.file.path.rsplit('.', 1)[0] + '_selected.csv'
+        data.writeToCsv(output_path)
+
+        # Serve the CSV file
+        with open(output_path, 'rb') as f:
+            response = HttpResponse(f.read(), content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="{os.path.basename(output_path)}"'
+            return response
+    else:
+        return HttpResponseForbidden("Invalid request")
 
 
 def downloadHeaderMFER(request, file_id):
@@ -442,28 +463,3 @@ def plotGraph(request, file_id):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-def downloadCSV(request, file_id):
-    if request.method == 'POST':
-        selected_channels = request.POST.getlist('channels')  # Get selected channels from checkboxes
-        file = get_object_or_404(File, id=file_id)
-        header = get_header(file.file.path)  # Assuming this function gives you full header data including channels
-
-        # Filter data based on selected_channels
-        data = Data(file.file.path)  # You need a method here to filter data
-        for index, channel in enumerate(header.channels):
-            if channel.attribute in selected_channels:
-                data.setChannelSelection(index, True)
-            else:
-                data.setChannelSelection(index, False)
-        
-        # Generate CSV
-        output_path = file.file.path.rsplit('.', 1)[0] + '_selected.csv'
-        data.writeToCsv(output_path)
-
-        # Serve the CSV file
-        with open(output_path, 'rb') as f:
-            response = HttpResponse(f.read(), content_type='text/csv')
-            response['Content-Disposition'] = f'attachment; filename="{os.path.basename(output_path)}"'
-            return response
-    else:
-        return HttpResponseForbidden("Invalid request")

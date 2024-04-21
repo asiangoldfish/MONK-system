@@ -1,14 +1,15 @@
 {% extends 'main.html' %}
 
 {% block content %}
-<h2 class="text-center mt-4 mb-3 pt-3">File Details</h2>  <!-- Added margin-top (mt-4) and padding-top (pt-3) -->
+<h2 class="text-center mt-4 mb-3 pt-3">File Details</h2>
 <div class="container mt-5">
     <div class="card">
-        <!-- Header for checkboxes -->
-        <div class="card-header">
-            <form action="{% url 'downloadCSV' file.id %}" method="post" class="d-flex justify-content-between align-items-center">
-                {% csrf_token %}
-                <!-- Checkbox Section -->
+        <form action="{% url 'downloadFormatCSV' file.id %}" method="post">
+            {% csrf_token %}
+            
+            <!-- Fieldset for Channel Selection -->
+            <fieldset class="card-header">
+                <h5>Channel Selection</h5>
                 <div class="form-check form-check-inline d-flex flex-wrap">
                     {% for channel in content.channels %}
                     <div class="form-check ml-2">
@@ -19,49 +20,68 @@
                     </div>
                     {% endfor %}
                 </div>
-                <!-- Download CSV Button -->
-                <button type="submit" class="btn btn-success">Download CSV</button>
-            </form>
-        </div>
+            </fieldset>
 
-        <!-- Second Header for file details -->
+            <!-- Fieldset for Time Interval Selection -->
+            <fieldset class="card">
+                <div class="card-header"><h5>Time Interval Selection</h5></div>
+                <div class="card-body">
+                    <label for="start_time">Start Time (in seconds):</label>
+                    <input type="number" id="start_time" name="start_time" min="0" step="0.1" placeholder="Set start time..." class="form-control">
+                    <label for="end_time">End Time (in seconds):</label>
+                    <input type="number" id="end_time" name="end_time" min="0" step="0.1" placeholder="Set end time..." class="form-control">
+                </div>
+            </fieldset>
+
+            <!-- Download CSV Button -->
+            <div class="card-footer text-center">
+                <button type="submit" class="btn btn-success" style="min-width: 200px;"><strong>Download CSV</strong></button>
+            </div>
+
+        </form>
+
+    <fieldset class = "card">
+        <!-- Section for downloading MFER data with anonymization options -->
+        {% if is_MFER_file %}
         <div class="card-header d-flex justify-content-center">
-            {% if is_MFER_file %}
             <div class="d-flex align-items-center">
-                <!-- Forms for downloading MFER header/data with anonymization option -->
+                <!-- Form for downloading MFER header -->
                 <form action="{% url 'downloadHeaderMFER' file.id %}" method="post" class="mr-5 d-flex align-items-center">
                     {% csrf_token %}
                     <div class="custom-control custom-switch mr-2">
                         <input type="checkbox" class="custom-control-input" id="anonymizeSwitch" name="anonymize" value="true">
                         <label class="custom-control-label" for="anonymizeSwitch">Anonymize</label>
                     </div>
-                    <button type="submit" class="btn btn-info">Download MFER Header</button>
+                    <button type="submit" class="btn btn-info"><strong>Download MFER Header</strong></button>
                 </form>
+
+                <!-- Form for downloading raw MFER data -->
                 <form action="{% url 'downloadRawDataMFER' file.id %}" method="get" class="mr-5 d-flex align-items-center">
                     {% csrf_token %}
                     <div class="custom-control custom-switch mr-2">
                         <input type="checkbox" class="custom-control-input" id="anonymizeData" name="anonymize" value="true">
                         <label class="custom-control-label" for="anonymizeData">Anonymize</label>
                     </div>
-                    <button type="submit" class="btn btn-info">Download Raw MFER</button>
+                    <button type="submit" class="btn btn-info"><strong>Download Raw MFER</strong></button>
                 </form>
             </div>
-            {% endif %}
         </div>
+        {% endif %}
+    </fieldset>
 
-        <!-- Card Body for displaying content -->
+        <!-- Display File Content -->
         <div class="card-body">
             <h4 class="card-title mb-4">Title: {{ file.title }}</h4>
             <h5 class="card-title mb-4">ID: {{ file.id }}</h5>
             {% if is_text_file %}
-                <h5 class="card-subtitle mb-2 text-muted">File Content:</h5>
-                <pre class="card-text p-3">{{ content }}</pre>
+            <h5 class="card-subtitle mb-2 text-muted">File Content:</h5>
+            <pre class="card-text p-3">{{ content }}</pre>
             {% elif is_MFER_file %}
-                <h5 class="card-subtitle mb-2 text-muted">MFER File Header:</h5>
-                <pre class="card-text p-3">{{ content }}</pre>
+            <h5 class="card-subtitle mb-2 text-muted">MFER File Header:</h5>
+            <pre class="card-text p-3">{{ content }}</pre>
             {% else %}
-                <p class="card-text">Unsupported file format for direct display.</p>
-                <a href="{{ file.file.url }}" class="btn btn-primary btn-lg" target="_blank">Download File</a>
+            <p class="card-text">Unsupported file format for direct display.</p>
+            <a href="{{ file.file.url }}" class="btn btn-primary btn-lg" target="_blank">Download File</a>
             {% endif %}
         </div>
     </div>
