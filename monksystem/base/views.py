@@ -86,7 +86,11 @@ def file(request, file_id):
         except Exception as e:
             content = f"Error reading file: {e}"
 
-    context = {'file': file, 'content': content, 'is_text_file': is_text_file, 'is_MFER_file': is_MFER_file}
+    context = {'file': file, 
+               'content': content, 
+               'is_text_file': is_text_file,
+               'is_MFER_file': is_MFER_file}
+    
     return render(request, 'base/file.html', context)
 
 

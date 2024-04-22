@@ -36,10 +36,22 @@
                 <label for="rows-input"><i class="bi bi-list-ol" style="margin-right: 10px;"></i>Number of Rows:</label>
                 <input type="number" id="rows-input" name="rows" value="10000" min="1">
             </div>
-            <div class="card-footer" style="display: flex; justify-content: center; align-items: center;">
-                <button id="plot-graph" class="btn btn-primary btn-lg" data-file-id="{{ subject.file.id }}" style="width: 60%; margin-top: 1px;">
-                    View vitals</button>
+            
+            <div class="card-footer">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <button id="plot-graph" class="btn btn-primary btn-lg" data-file-id="{{ subject.file.id }}" style="width: 55%; margin-bottom: 15px;">
+                        View vitals</button>
+                    
+                    <!-- View associated file button -->
+                    {% if subject.file %}
+                    <a href="{% url 'file' subject.file.id %}" class="btn btn-secondary btn-lg" style="width: 55%;">
+                        View associated file</a>
+                    {% else %}
+                    <p>No associated file found.</p>
+                    {% endif %}
+                </div>
             </div>
+
         </div>
         
     </div>

@@ -8,6 +8,7 @@
             {% csrf_token %}
             
             <!-- Fieldset for Channel Selection -->
+            <!-- Fieldset for Channel Selection -->
             <fieldset class="card-header">
                 <h5>Channel Selection</h5>
                 <div class="form-check form-check-inline d-flex flex-wrap">
@@ -20,7 +21,15 @@
                     </div>
                     {% endfor %}
                 </div>
+                <!-- Buttons for selecting/deselecting all channels -->
+                <div class="d-flex justify-content-center mt-2">
+                    <button type="button" class="btn btn-primary select-all-btn btn-sm mr-2">Select All</button>
+                    <button type="button" class="btn btn-secondary deselect-all-btn btn-sm">Deselect All</button>
+                </div>
+
+
             </fieldset>
+
 
             <!-- Fieldset for Time Interval Selection -->
             <fieldset class="card">
@@ -86,4 +95,35 @@
         </div>
     </div>
 </div>
+
+
+
+<script>
+    // Ensuring the DOM is fully loaded before running the script
+    document.addEventListener('DOMContentLoaded', function () {
+        function selectAllChannels(selectAll) {
+            // Get all checkbox elements with the name 'channels'
+            const checkboxes = document.querySelectorAll('input[name="channels"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll; // Set the checked status based on the selectAll parameter
+            });
+        }
+    
+        // Attaching the functions to buttons without inline JavaScript
+        const selectAllButton = document.querySelector('.select-all-btn');
+        const deselectAllButton = document.querySelector('.deselect-all-btn');
+    
+        selectAllButton.addEventListener('click', function() {
+            selectAllChannels(true);
+        });
+    
+        deselectAllButton.addEventListener('click', function() {
+            selectAllChannels(false);
+        });
+    });
+</script>
+
 {% endblock %}
+
+
+    
