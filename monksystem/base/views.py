@@ -436,7 +436,7 @@ def downloadHeaderMFER(request, file_id):
     except Exception as e:
         return HttpResponse(f"An error occurred while retrieving the header: {str(e)}", status=500)
 
-# Function to download raw data from an MFER file
+
 def downloadRawDataMFER(request, file_id):
     # Retrieve the file object, or return a 404 error if it doesn't exist
     file_instance = get_object_or_404(File, id=file_id)
@@ -451,21 +451,21 @@ def downloadRawDataMFER(request, file_id):
         # Check if anonymization is requested via GET parameters
         if request.GET.get('anonymize') == 'true':
             # Anonymize the data if requested
-            anonymized_path = anonymizeData(file_path)
-            # Update file path to point to anonymized data
-            file_path = anonymized_path
+            file_path = anonymizeData(file_path)
 
         # Open and read the content of the file
         with open(file_path, 'rb') as file:
             content = file.read()
             # Prepare a response with the file content as plain text
-            response = HttpResponse(content, content_type="text/plain")
-            # Suggest a filename for the raw data when downloaded
-            response['Content-Disposition'] = f'attachment; filename="{file_instance.title}_data.txt"'
+            response = HttpResponse(content, content_type="application/octet-stream")
+            # Suggest a filename for the raw data when downloaded, ensuring it uses the .mwf extension
+            response['Content-Disposition'] = f'attachment; filename="{file_instance.title}.mwf"'
             return response
     # Return an error message if something goes wrong
     except Exception as e:
         return HttpResponse(f"An error occurred while reading the file: {str(e)}", status=500)
+
+
 
 # Function to anonymize data within an MFER file
 def anonymizeData(file_path):
