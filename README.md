@@ -42,6 +42,7 @@ source {your environment name}/bin/activate
 ```
 pip install django
 pip install git+https://github.com/MONK-system/library.git
+pip install plotly pandas
 ```
 
 Check out https://github.com/MONK-system/library for installation prerequisistes.
