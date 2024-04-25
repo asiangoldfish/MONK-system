@@ -53,11 +53,11 @@ class Project(models.Model):
     def __str__(self):
         return self.rekNummer
     
-# Model for file claims
-class FileClaim(models.Model):
+# Model for file import
+class FileImport(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     file = models.ForeignKey(File, on_delete=models.CASCADE)
-    claimed_at = models.DateTimeField(auto_now_add=True)
+    imported_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.file.title} claimed by {self.user.name}"
+        return f"{self.file.title} imported by {self.user.name}"

@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate,login,logout
 # Importing models for the database schema related to the application
-from .models import Subject, UserProfile, Project, File, FileClaim
+from .models import Subject, UserProfile, Project, File, FileImport
 # Forms for handling file upload and user registration
 from .forms import FileForm, UserRegistrationForm  
 # Importing functionalities from monklib for handling medical data
@@ -69,11 +69,11 @@ def file(request, file_id):
     # Find projects that include these subjects
     projects = Project.objects.filter(subjects__in=subjects)
     
-     # Check if the user is part of any of these projects or has claimed the file
+     # Check if the user is part of any of these projects or has imported the file
     user_in_project = projects.filter(users=user_profile).exists()
-    user_has_claimed = FileClaim.objects.filter(file=file, user=user_profile).exists()
+    user_has_imported = FileImport.objects.filter(file=file, user=user_profile).exists()
 
-    if not (user_in_project or user_has_claimed):
+    if not (user_in_project or user_has_imported):
         return HttpResponseForbidden("You do not have permission to view this file.")
 
     is_MFER_file = file.file.name.lower().endswith('.mwf')
@@ -274,7 +274,7 @@ def addProject(request):
 
 # Ensure user must be logged in to access this function.
 @login_required
-def importFile(request):
+def uploadFile(request):
     # Initialize an empty file form
     form = FileForm()
     # Check if the request to upload a file is a POST request
@@ -300,16 +300,16 @@ def importFile(request):
     return render(request, 'base/import_file.html', {'form': form})
 
 
-# Function to claim ownership of a file for processing
+# Function to import ownership of a file for processing
 @login_required
-def claimFile(request, file_id):
+def importFile(request, file_id):
     # Retrieve the file object from the database; if it doesn't exist, a 404 error page is shown
-    file_to_claim = get_object_or_404(File, id=file_id)
+    file_to_import = get_object_or_404(File, id=file_id)
     
-    # Check if this file has already been claimed by another user in the database
-    if FileClaim.objects.filter(file=file_to_claim).exists():
-        # Inform the user that the file has already been claimed
-        messages.error(request, "This file has already been claimed.")
+    # Check if this file has already been imported by another user in the database
+    if FileImport.objects.filter(file=file_to_import).exists():
+        # Inform the user that the file has already been imported
+        messages.error(request, "This file has already been imported.")
         # Redirect to the file viewing page
         return redirect('viewFile')
     
@@ -321,16 +321,16 @@ def claimFile(request, file_id):
         messages.error(request, "You are not registered as a user profile.")
         return redirect('viewFile')
     
-    # Create a new record in the FileClaim model, linking the user and the file
-    FileClaim.objects.create(user=user_profile, file=file_to_claim)
-    # Inform the user of successful file claim
-    messages.success(request, "File claimed successfully.")
+    # Create a new record in the FileImport model, linking the user and the file
+    FileImport.objects.create(user=user_profile, file=file_to_import)
+    # Inform the user of successful file import
+    messages.success(request, "File imported successfully.")
 
     # Additional processing if the file is a .mwf (Medical Waveform) file
-    if file_to_claim.file.name.lower().endswith('.mwf'):
+    if file_to_import.file.name.lower().endswith('.mwf'):
         try:
             # Retrieve header information from the file using monklib's get_header function
-            header = get_header(file_to_claim.file.path)
+            header = get_header(file_to_import.file.path)
             # Extract specific pieces of patient information from the header
             subject_id = getattr(header, 'patientID', None)
             time_stamp = getattr(header, 'measurementTimeISO', None)
@@ -352,7 +352,7 @@ def claimFile(request, file_id):
                 name=subject_name,
                 gender=subject_sex,
                 birth_date=birth_date,
-                file=file_to_claim
+                file=file_to_import
             )
             # Inform the user of successful subject creation
             messages.success(request, f"Subject created with ID: {new_subject.subject_id}")

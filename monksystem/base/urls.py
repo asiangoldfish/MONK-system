@@ -14,10 +14,10 @@ urlpatterns = [
     path('register/', views.registerPage, name = "register"),
 
     path('viewFile/', views.viewFile, name='viewFile'),    
-    path('importFile/', views.importFile, name='importFile'),
+    path('uploadFile/', views.uploadFile, name='uploadFile'),
 
     path('file/<int:file_id>/', views.file, name='file'),    
-    path('claim/<int:file_id>/', views.claimFile, name='claimFile'),
+    path('import/<int:file_id>/', views.importFile, name='importFile'),
 
     path('user/<str:pk>', views.user, name="user"),
     path('viewUser/', views.viewUser, name = "viewUser"),
