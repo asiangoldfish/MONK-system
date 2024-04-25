@@ -29,7 +29,6 @@
                             <div class="card-body">
                                 <h5 class="card-title"><i class="bi bi-person-circle"></i> {{ user.name }}</h5>
                                 <p class="card-text"><i class="bi bi-card-heading" style="margin-right: 10px;"></i><strong>ID:</strong> {{ user.id }}</p>
-                                <p class="card-text"><i class="bi bi-tools" style="margin-right: 5px;"></i><strong>Specialization:</strong> {{ user.specialization }}</p>
                                 <p class="card-text"><i class="bi bi-telephone-fill" style="margin-right: 5px;"></i><strong>Contact:</strong> {{ user.mobile }}</p>
                                 <a href="{% url 'user' user.id %}" class="btn btn-primary">View User</a>
                             </div>

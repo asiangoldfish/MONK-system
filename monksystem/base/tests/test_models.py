@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from base.models import UserProfile, File, Subject, Project, FileClaim
+from base.models import UserProfile, File, Subject, Project, FileImport
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 import datetime
@@ -16,7 +16,6 @@ class TestModels(TestCase):
             user=self.user,
             name='Test User',
             mobile=123456789,
-            specialization='Specialization'
         )
 
         # File object
@@ -49,10 +48,10 @@ class TestModels(TestCase):
         self.assertEqual(str(project), 'R001')
 
 
-    def test_file_claim_creation_and_str(self):
-        file_claim = FileClaim.objects.create(
+    def test_file_import_creation_and_str(self):
+        file_import = FileImport.objects.create(
             user=self.user_profile,
             file=self.file
         )
-        expected_str = f"{self.file.title} claimed by {self.user_profile.name}"
-        self.assertEqual(str(file_claim), expected_str)
+        expected_str = f"{self.file.title} imported by {self.user_profile.name}"
+        self.assertEqual(str(file_import), expected_str)

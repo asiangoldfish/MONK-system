@@ -2,7 +2,7 @@ import os
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
-from base.models import UserProfile, File, Subject, Project, FileClaim
+from base.models import UserProfile, File, Subject, Project, FileImport
 from django.core.files.uploadedfile import SimpleUploadedFile
 import tempfile
 
@@ -14,7 +14,7 @@ class TestViews(TestCase):
         
         # Create a UserProfile instance
         self.user_profile = UserProfile.objects.create(
-            user=self.user, name='Test User', mobile='1234567890', specialization='Test Specialization')
+            user=self.user, name='Test User', mobile='1234567890')
         
         # Create a File instance
         self.test_file = tempfile.NamedTemporaryFile(suffix=".txt", delete=False)
@@ -31,8 +31,8 @@ class TestViews(TestCase):
         self.project.users.add(self.user_profile)
         self.project.subjects.add(self.subject)
         
-        # Create a FileClaim instance
-        self.file_claim = FileClaim.objects.create(user=self.user_profile, file=self.file)
+        # Create a FileImport instance
+        self.file_import = FileImport.objects.create(user=self.user_profile, file=self.file)
     
     def tearDown(self):
         # Clean up files and temporary files
@@ -80,7 +80,6 @@ class TestViews(TestCase):
             'password2': 'testpassword123',
             'name': 'New User',
             'mobile': '0987654321',
-            'specialization': 'New Specialization'
         })
         # redirect to home page upon successful registration
         self.assertEqual(response.status_code, 302)
@@ -113,15 +112,15 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 302)  # Redirect expected upon success
         self.assertTrue(Project.objects.filter(rekNummer='R002').exists())
 
-    def test_claim_file_POST(self):
+    def test_import_file_POST(self):
         self.client.login(username='testuser', password='testpass')  # Ensure login
-        url = reverse('claimFile', kwargs={'file_id': self.file.id})  
+        url = reverse('importFile', kwargs={'file_id': self.file.id})  
         response = self.client.post(url)
         self.assertEqual(response.status_code, 302)  # Redirect expected upon success
-        self.assertTrue(FileClaim.objects.filter(file=self.file, user=self.user_profile).exists())
+        self.assertTrue(FileImport.objects.filter(file=self.file, user=self.user_profile).exists())
 
 
-    def test_importFile_POST(self):
+    def test_upload_file_POST(self):
             self.client.login(username='testuser', password='testpass')
             # Create a temporary file mimicking an .MWF file upload
             with tempfile.NamedTemporaryFile(suffix=".MWF", delete=False) as tmp_file:
@@ -133,8 +132,8 @@ class TestViews(TestCase):
                     'file': SimpleUploadedFile(name='test.MWF', content=tmp_file.read(), content_type='application/octet-stream'),
                     'submitted': 'true'  # Include the hidden field 'submitted'
                 }
-                # Make a POST request to the importFile view
-                response = self.client.post(reverse('importFile'), data=post_data, follow=True)
+                # Make a POST request to the uploadFile view
+                response = self.client.post(reverse('uploadFile'), data=post_data, follow=True)
             
             # Assertions
             self.assertEqual(response.status_code, 200)

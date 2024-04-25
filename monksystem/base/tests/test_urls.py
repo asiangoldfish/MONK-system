@@ -87,9 +87,9 @@ class TestUrls(SimpleTestCase):
         self.assertEquals(resolved, viewFile)
     
     def test_import_file_url_resolves(self):
-        url = reverse('importFile')
+        url = reverse('uploadFile')
         resolved = resolve(url).func
-        self.assertEquals(resolved, importFile)
+        self.assertEquals(resolved, uploadFile)
         
     # For URLs with dynamic segments, we need to provide example values:
     def test_file_detail_url_resolves(self):

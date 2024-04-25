@@ -165,7 +165,6 @@ def registerPage(request):
                 user=user,
                 name=form.cleaned_data.get('name'),
                 mobile=form.cleaned_data.get('mobile'),
-                specialization=form.cleaned_data.get('specialization'),
             ) 
             
             login(request, user) # logs the user in.

@@ -19,7 +19,6 @@ class TestForms(TestCase):
             'username': 'testuser',
             'name': 'Test User',
             'mobile': 1234567890,
-            'specialization': 'Tester',
             'password1': 'verysecurepassword123',
             'password2': 'verysecurepassword123'
         })
@@ -29,4 +28,4 @@ class TestForms(TestCase):
         form = UserRegistrationForm(data={})
         self.assertFalse(form.is_valid())
         # Expected to fail on required fields
-        self.assertTrue(len(form.errors), 6)  # Expecting errors for 'username', 'name', 'mobile', 'specialization', 'password1', 'password2'
+        self.assertTrue(len(form.errors), 5)  # Expecting errors for 'username', 'name', 'mobile', 'password1', 'password2'
