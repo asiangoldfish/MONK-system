@@ -437,7 +437,7 @@ def downloadHeaderMFER(request, file_id):
         return HttpResponse(f"An error occurred while retrieving the header: {str(e)}", status=500)
 
 
-def downloadRawDataMFER(request, file_id):
+def downloadMWF(request, file_id):
     # Retrieve the file object, or return a 404 error if it doesn't exist
     file_instance = get_object_or_404(File, id=file_id)
 

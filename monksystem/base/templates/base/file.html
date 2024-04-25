@@ -65,13 +65,13 @@
                 </form>
 
                 <!-- Form for downloading raw MFER data -->
-                <form action="{% url 'downloadRawDataMFER' file.id %}" method="get" class="mr-5 d-flex align-items-center">
+                <form action="{% url 'downloadMWF' file.id %}" method="get" class="mr-5 d-flex align-items-center">
                     {% csrf_token %}
                     <div class="custom-control custom-switch mr-2">
                         <input type="checkbox" class="custom-control-input" id="anonymizeData" name="anonymize" value="true">
                         <label class="custom-control-label" for="anonymizeData">Anonymize</label>
                     </div>
-                    <button type="submit" class="btn btn-info"><strong>Download Raw MFER</strong></button>
+                    <button type="submit" class="btn btn-info"><strong>Download MWF</strong></button>
                 </form>
             </div>
         </div>
