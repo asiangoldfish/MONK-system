@@ -8,7 +8,6 @@
 
     {% if files %}
         <div class="row">
-            <!-- Display not imported files first -->
             {% for file in files %}
                 {% with file.fileimport_set.first as import %}
                     {% if not import %}
@@ -27,7 +26,6 @@
                     {% endif %}
                 {% endwith %}
             {% endfor %}
-            <!-- Then display already imported files -->
             {% for file in files %}
                 {% with file.fileimport_set.first as import %}
                     {% if import %}

@@ -15,8 +15,10 @@
                         <i class="bi bi-briefcase-fill" style="margin-right: 10px;"></i>
                         <strong>Project: {{ project.rekNummer }}</strong>
                     </a>
-                    <!-- Smaller button in the corner -->
-                    <a href="{% url 'leaveProject' project.id %}" class="btn btn-danger btn-sm">Leave project</a>
+                    <div>
+                        <a href="{% url 'editProject' project.id %}" class="btn btn-secondary btn-sm me-1">Edit Project</a>
+                        <a href="{% url 'leaveProject' project.id %}" class="btn btn-danger btn-sm">Leave Project</a>
+                    </div>
                     {% else %}
                     <span>
                         <i class="bi bi-briefcase-fill" style="margin-right: 10px;"></i>
@@ -52,6 +54,7 @@
                             <div class="card-body">
                                 <h5 class="card-title"><i class="bi bi-person-lines-fill"></i> {{ subject.name }}</h5>
                                 <p class="card-text"><i class="bi bi-card-heading" style="margin-right: 10px;"></i><strong>ID:</strong> {{ subject.subject_id }}</p>
+                                <p class="card-text"><i class="bi bi-file-earmark-text" style="margin-right: 10px;"></i><strong>File:</strong> {{ subject.file.title }}</p>
                                 {% if subject.file %}
                                     <a href="{% url 'file' subject.file.id %}" class="btn btn-success" style="font-weight: bold;">View File</a>
                                 {% else %}

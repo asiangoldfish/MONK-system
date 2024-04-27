@@ -247,6 +247,7 @@ def addSubject(request):
     files = File.objects.all()  # Provide list of files for the form
     return render(request, 'base/add_subject.html', {'files': files})
 
+
 @login_required
 def addProject(request):
     if request.method == "POST":
@@ -271,8 +272,26 @@ def addProject(request):
     return render(request, 'base/add_project.html', context)
 
 
-
 @login_required
+def editProject(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    if request.method == 'POST':
+        user_ids = request.POST.getlist('users')
+        subject_ids = request.POST.getlist('subjects')
+        if user_ids:
+            project.users.set(UserProfile.objects.filter(id__in=user_ids))
+        if subject_ids:
+            project.subjects.set(Subject.objects.filter(id__in=subject_ids))
+        project.save()
+        messages.success(request, "Project updated successfully.")
+        return redirect('viewProject')
+    else:
+        users = UserProfile.objects.all()
+        subjects = Subject.objects.all()
+        context = {'project': project, 'users': users, 'subjects': subjects}
+        return render(request, 'base/edit_project.html', context)
+    
+    
 def leaveProject(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     user_profile = request.user.userprofile
@@ -285,6 +304,7 @@ def leaveProject(request, project_id):
         messages.error(request, "You are not a member of this project.")
     
     return redirect('viewProject')
+
 
 def uploadMultipleFiles(request):
     if request.method == 'POST':
@@ -300,6 +320,7 @@ def uploadMultipleFiles(request):
     else:
         form = FileFieldForm()
     return render(request, "base/upload_file.html", {"form": form})
+
 
 def uploadFile(request):
     # Initialize an empty file form
