@@ -86,7 +86,7 @@ class TestUrls(SimpleTestCase):
         resolved = resolve(url).func
         self.assertEquals(resolved, viewFile)
     
-    def test_import_file_url_resolves(self):
+    def test_upload_file_url_resolves(self):
         url = reverse('uploadFile')
         resolved = resolve(url).func
         self.assertEquals(resolved, uploadFile)

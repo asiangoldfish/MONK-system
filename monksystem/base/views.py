@@ -15,7 +15,7 @@ from django.contrib.auth import authenticate,login,logout
 # Importing models for the database schema related to the application
 from .models import Subject, UserProfile, Project, File, FileImport
 # Forms for handling file upload and user registration
-from .forms import FileForm, UserRegistrationForm  
+from .forms import FileForm, UserRegistrationForm, FileFieldForm
 # Importing functionalities from monklib for handling medical data
 from monklib import get_header, convert_to_csv, Data
 # Plotly import for creating subplots in graphs
@@ -271,8 +271,21 @@ def addProject(request):
     return render(request, 'base/add_project.html', context)
 
 
-# Ensure user must be logged in to access this function.
-@login_required
+def uploadMultipleFiles(request):
+    if request.method == 'POST':
+        form = FileFieldForm(request.POST, request.FILES)
+        if form.is_valid():
+            files = request.FILES.getlist('file_field')
+            for f in files:
+                File.objects.create(file=f)
+            messages.success(request, "Files uploaded successfully.")
+            return redirect('viewFile')
+        else:
+            messages.error(request, "Please correct the error below.")
+    else:
+        form = FileFieldForm()
+    return render(request, "base/upload_file.html", {"form": form})
+
 def uploadFile(request):
     # Initialize an empty file form
     form = FileForm()
@@ -296,7 +309,7 @@ def uploadFile(request):
                 # Handle other form errors
                 messages.error(request, "Please correct the error below.")
     # Render and return the upload file form page with the form instance
-    return render(request, 'base/import_file.html', {'form': form})
+    return render(request, 'base/upload_file.html', {'form': form})
 
 
 # Function to import ownership of a file for processing

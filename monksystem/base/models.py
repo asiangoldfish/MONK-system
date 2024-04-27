@@ -23,6 +23,13 @@ class File(models.Model):
     anonymize = models.BooleanField(default=False)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
+    
+    def save(self, *args, **kwargs):
+        if not self.title:
+            # Automatically set the title to the file name without the extension
+            self.title = self.file.name.rsplit('.', 1)[0]
+        super(File, self).save(*args, **kwargs)
+        
     def __str__(self):
         return self.title
 

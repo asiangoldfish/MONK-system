@@ -4,11 +4,11 @@
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-8 offset-md-2">
-            <h2 class="text-center mb-3">Import File</h2>
-            <p class="text-center">Provide a title for your file and select the file to import.</p>
+            <h2 class="text-center mb-3">Upload File</h2>
+            <p class="text-center">Provide a title for your file and select the file to upload.</p>
             <div class="card">
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
+                    <form method="post" action="{% url 'uploadFile' %}" enctype="multipart/form-data">
                         {% csrf_token %}
                         {% for field in form %}
                             <div class="form-group">
@@ -25,9 +25,25 @@
                         {% endfor %}
                         <input type="hidden" name="submitted" value="true">
                             <div class="text-center">
-                                <button type="submit" class="btn btn-primary">Upload</button>
+                                <button type="submit" class="btn btn-primary">Upload File</button>
                             </div>
-                        </form>
+                    </form>
+                </div>
+            </div>
+            <h2 class="text-center mt-5 mb-3">Upload Multiple Files</h2>
+            <p class="text-center">Select multiple files to upload at once.</p>
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" action="{% url 'uploadMultipleFiles' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="custom-file mt-3 mb-4">
+                            <input type="file" class="custom-file-input" id="multiFile" name="file_field" multiple>
+                            <label class="custom-file-label" for="multiFile">Choose files...</label>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Upload Files</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -38,9 +54,12 @@
     // JavaScript for custom file input label
     document.querySelectorAll('.custom-file-input').forEach(item => {
         item.addEventListener('change', function(e) {
-            var fileName = e.target.files[0].name;
+            var fileNames = [];
+            for (var i = 0; i < e.target.files.length; i++) {
+                fileNames.push(e.target.files[i].name);
+            }
             var label = e.target.nextElementSibling;
-            label.innerText = fileName;
+            label.innerText = fileNames.join(', ');
         });
     });
 </script>

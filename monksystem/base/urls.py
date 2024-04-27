@@ -15,6 +15,7 @@ urlpatterns = [
 
     path('viewFile/', views.viewFile, name='viewFile'),    
     path('uploadFile/', views.uploadFile, name='uploadFile'),
+    path('uploadMultipleFiles/', views.uploadMultipleFiles, name='uploadMultipleFiles'),
 
     path('file/<int:file_id>/', views.file, name='file'),    
     path('import/<int:file_id>/', views.importFile, name='importFile'),
