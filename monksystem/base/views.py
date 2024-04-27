@@ -24,16 +24,16 @@ from plotly.offline import plot
 
 @login_required
 def homePage(request):
-    files = File.objects.all()
-    if request.method == 'POST':
-        form = FileForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
-    else:
-        form = FileForm()
-    context = {'files': files, 'form': form}
-    return render(request, 'base/home.html', context)
+    #files = File.objects.all()
+    #if request.method == 'POST':
+    #    form = FileForm(request.POST, request.FILES)
+    #    if form.is_valid():
+    #        form.save()
+    #        return redirect('home')
+    #else:
+    #    form = FileForm()
+    #context = {'files': files, 'form': form}
+    return render(request, 'base/home.html')
 
 
 def subject(request, pk):
@@ -270,6 +270,21 @@ def addProject(request):
     context = {'users' : users, 'subjects' : subjects}
     return render(request, 'base/add_project.html', context)
 
+
+
+@login_required
+def leaveProject(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    user_profile = request.user.userprofile
+    
+    if user_profile in project.users.all():
+        project.users.remove(user_profile)
+        project.save()
+        messages.success(request, "You have successfully left the project.")
+    else:
+        messages.error(request, "You are not a member of this project.")
+    
+    return redirect('viewProject')
 
 def uploadMultipleFiles(request):
     if request.method == 'POST':

@@ -30,11 +30,12 @@ urlpatterns = [
     path('project/<str:pk>', views.project, name="project"),
     path('viewProject/', views.viewProject, name = "viewProject"),
     path('addProject/', views.addProject, name = "addProject"),
+    path('leaveProject/<int:project_id>/', views.leaveProject, name='leaveProject'),
+
     
     path('download-MFER-Header/<int:file_id>/', views.downloadHeaderMFER, name='downloadHeaderMFER'),
     path('download-MWF/<int:file_id>/', views.downloadMWF, name='downloadMWF'),
     path('plotGraph/<int:file_id>/', views.plotGraph, name='plotGraph'),
     path('download-CSV-Format/<int:file_id>/', views.downloadFormatCSV, name='downloadFormatCSV'),
-
     
 ]
