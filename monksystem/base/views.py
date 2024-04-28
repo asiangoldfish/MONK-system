@@ -362,7 +362,8 @@ def importMultipleFiles(request):
                     return redirect('viewFile')  # Redirect to a view where users can create/update their profile
 
                 for f in valid_files:
-                    new_file = File.objects.create(file=f, title=f.name)
+                    base_title = os.path.splitext(f.name)[0]
+                    new_file = File.objects.create(file=f, title=base_title)
                     FileImport.objects.create(user=user_profile, file=new_file)
                     process_and_create_subject(new_file, request)
 

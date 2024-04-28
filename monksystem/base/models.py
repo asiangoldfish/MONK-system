@@ -2,6 +2,7 @@ from django.db import models
 from django import forms
 from django.contrib.auth.models import User
 import uuid
+import os
 from django.utils.timezone import now
 
 
@@ -27,7 +28,8 @@ class File(models.Model):
     def save(self, *args, **kwargs):
         if not self.title:
             # Automatically set the title to the file name without the extension
-            self.title = self.file.name.rsplit('.', 1)[0]
+            base = os.path.basename(self.file.name)  # Extracts filename from the path
+            self.title = os.path.splitext(base)[0]  # Removes the extension
         super(File, self).save(*args, **kwargs)
         
     def __str__(self):
