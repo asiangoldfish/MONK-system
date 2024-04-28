@@ -29,12 +29,6 @@ class TestUrls(SimpleTestCase):
         url = reverse('register')
         resolved = resolve(url).func
         self.assertEquals(resolved, registerPage)
-    
-    def test_view_user_url_resolves(self):
-        # Testing the URL for viewing all users
-        url = reverse('viewUser')
-        resolved = resolve(url).func
-        self.assertEquals(resolved, viewUser)
 
     def test_subject_detail_url_resolves(self):
         # Testing dynamic URL for subject detail view

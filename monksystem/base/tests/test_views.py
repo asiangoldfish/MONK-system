@@ -58,12 +58,6 @@ class TestViews(TestCase):
         self.assertTemplateUsed(response, 'base/project.html')
         self.assertEqual(response.context['project'], self.project)
         
-    def test_viewUser(self):
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.get(reverse('viewUser'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'base/view_user.html')
-        
     def test_user_detail_view(self):
         self.client.login(username='testuser', password='testpass')
         response = self.client.get(reverse('user', kwargs={'pk': self.user.id}))  

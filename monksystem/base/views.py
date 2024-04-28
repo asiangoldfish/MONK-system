@@ -150,12 +150,6 @@ def registerPage(request):
             
     context = {'form' : form}
     return render(request,'base/login_register.html', context)
-
-@login_required
-def viewUser(request):
-    users = UserProfile.objects.all()
-    context = {'users' : users}
-    return render(request,'base/view_user.html', context)
     
 @login_required
 def viewSubject(request):
