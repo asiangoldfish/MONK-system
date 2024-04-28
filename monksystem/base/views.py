@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate,login,logout
 # Importing models for the database schema related to the application
 from .models import Subject, UserProfile, Project, File, FileImport
-# Forms for handling file upload and user registration
+# Forms for handling file import and user registration
 from .forms import FileForm, UserRegistrationForm, FileFieldForm
 # Importing functionalities from monklib for handling medical data
 from monklib import get_header, convert_to_csv, Data
@@ -175,9 +175,15 @@ def viewProject(request):
 
 @login_required
 def viewFile(request):
-    files = File.objects.all()
-    context = {'files' : files}
-    return render(request,'base/view_file.html', context)
+    try: 
+        user_profile = request.user.userprofile
+        # Only include files with successful subject creation or another success indicator
+        files = File.objects.filter(fileimport__user=user_profile, subjects__isnull=False)
+    except UserProfile.DoesNotExist:
+        files = File.objects.none()
+    context = {'files': files}
+    return render(request, 'base/view_file.html', context)
+
 
 
 @login_required
@@ -270,117 +276,104 @@ def leaveProject(request, project_id):
     return redirect('viewProject')
 
 
-def uploadMultipleFiles(request):
+@login_required
+def importFile(request):
+    form = FileForm()
+    if request.method == 'POST' and 'submitted' in request.POST:
+        form = FileForm(request.POST, request.FILES)
+        if form.is_valid():
+            imported_file = request.FILES['file']
+            # Check if the file is NOT a .mwf file
+            if not imported_file.name.lower().endswith('.mwf'):
+                messages.error(request, "Only .MWF files are allowed.")
+                return render(request, 'base/import_file.html', {'form': form})
+
+            try:
+                user_profile = request.user.userprofile
+            except UserProfile.DoesNotExist:
+                messages.error(request, "You are not registered as a regular user.")
+                return redirect('viewFile')  # Redirect to a view where users can create/update their profile
+
+            new_file = form.save()
+            FileImport.objects.create(user=user_profile, file=new_file)
+
+            process_and_create_subject(new_file, request)
+
+            messages.success(request, "File imported and processed successfully.")
+            return redirect('viewFile')
+        else:
+            messages.error(request, "Please correct the error below.")
+    return render(request, 'base/import_file.html', {'form': form})
+
+
+@login_required
+def importMultipleFiles(request):
+    form = FileFieldForm()
     if request.method == 'POST':
         form = FileFieldForm(request.POST, request.FILES)
         if form.is_valid():
             files = request.FILES.getlist('file_field')
+            valid_files = []
             for f in files:
-                File.objects.create(file=f)
-            messages.success(request, "Files uploaded successfully.")
+                # Check if any file is NOT a .mwf file
+                if not f.name.lower().endswith('.mwf'):
+                    messages.error(request, "Only .MWF files are allowed. Invalid file: " + f.name)
+                    continue  # Skip adding this file to the list
+                valid_files.append(f)
+
+            if valid_files:
+                try:
+                    user_profile = request.user.userprofile
+                except UserProfile.DoesNotExist:
+                    messages.error(request, "You are not registered as a regular user.")
+                    return redirect('viewFile')  # Redirect to a view where users can create/update their profile
+
+                for f in valid_files:
+                    new_file = File.objects.create(file=f, title=f.name)
+                    FileImport.objects.create(user=user_profile, file=new_file)
+                    process_and_create_subject(new_file, request)
+
+                messages.success(request, "All valid .MWF files imported and processed successfully.")
+            else:
+                messages.error(request, "No valid .MWF files provided.")
             return redirect('viewFile')
         else:
             messages.error(request, "Please correct the error below.")
-    else:
-        form = FileFieldForm()
-    return render(request, "base/upload_file.html", {"form": form})
+    return render(request, "base/import_file.html", {"form": form})
 
 
-def uploadFile(request):
-    # Initialize an empty file form
-    form = FileForm()
-    # Check if the request to upload a file is a POST request
-    if request.method == 'POST' and 'submitted' in request.POST:
-        # Populate the form with POST data and files sent through the form
-        form = FileForm(request.POST, request.FILES)
-        # Check if form data is valid (file complies with expected format, title isn't empty, etc.)
-        if form.is_valid():
-            # Save the uploaded file data to the database
-            form.save()
-            # Display a success message to the user
-            messages.success(request, "File uploaded successfully.")
-            # Redirect to the file view page
-            return redirect('viewFile')
-        else:
-            # If form is not valid, check for specific issues such as empty fields
-            if not request.FILES.get('file') or not request.POST.get('title'):
-                messages.error(request, "Both title and file are required.")
-            else:
-                # Handle other form errors
-                messages.error(request, "Please correct the error below.")
-    # Render and return the upload file form page with the form instance
-    return render(request, 'base/upload_file.html', {'form': form})
-
-
-# Function to import ownership of a file for processing
-@login_required
-def importFile(request, file_id):
-    # Retrieve the file object from the database; if it doesn't exist, a 404 error page is shown
-    file_to_import = get_object_or_404(File, id=file_id)
-    
-    # Check if this file has already been imported by another user in the database
-    if FileImport.objects.filter(file=file_to_import).exists():
-        # Inform the user that the file has already been imported
-        messages.error(request, "This file has already been imported.")
-        # Redirect to the file viewing page
-        return redirect('viewFile')
-    
-    # Try to retrieve the user profile associated with the logged-in user
-    try:
-        user_profile = request.user.userprofile
-    except UserProfile.DoesNotExist:
-        # If the user profile does not exist, inform the user and redirect
-        messages.error(request, "You are not registered as a user profile.")
-        return redirect('viewFile')
-    
-    # Create a new record in the FileImport model, linking the user and the file
-    FileImport.objects.create(user=user_profile, file=file_to_import)
-    # Inform the user of successful file import
-    messages.success(request, "File imported successfully.")
-
-    # Additional processing if the file is a .mwf (Medical Waveform) file
-    if file_to_import.file.name.lower().endswith('.mwf'):
+def process_and_create_subject(file, request):
+    if file.file.name.lower().endswith('.mwf'):
         try:
-            # Retrieve header information from the file using monklib's get_header function
-            header = get_header(file_to_import.file.path)
-            # Extract specific pieces of patient information from the header
+            header = get_header(file.file.path)
             subject_id = getattr(header, 'patientID', None)
             time_stamp = getattr(header, 'measurementTimeISO', None)
             subject_name = getattr(header, 'patientName', "Unknown")
             subject_sex = getattr(header, 'patientSex', "Unknown")
             birth_date_str = getattr(header, 'birthDateISO', None)
-
-            # Convert the birth date string to a date object, if available and valid
             birth_date = None
             if birth_date_str and birth_date_str != 'N/A':
                 try:
                     birth_date = datetime.strptime(birth_date_str, '%Y-%m-%d').date()
                 except ValueError:
                     pass
-        
-            # Create a new subject record using the extracted data
-            new_subject = Subject.objects.create(
+
+            Subject.objects.create(
                 subject_id=time_stamp + " " + subject_id, 
                 name=subject_name,
                 gender=subject_sex,
                 birth_date=birth_date,
-                file=file_to_import
+                file=file
             )
-            # Inform the user of successful subject creation
-            messages.success(request, f"Subject created with ID: {new_subject.subject_id}")
+            messages.success(request, f"Subject created for file {file.title}")
         except IntegrityError:
-                # Handle cases where a subject with the same ID already exists
-                messages.info(request, "This patient already exists.")
-                return redirect('viewFile')
-            
+            # Handle the unique constraint failure
+            messages.info(request, f"This subject already exists. No duplicate created for file {file.title}.")
         except Exception as e:
-            # Handle other exceptions during file processing
-            messages.error(request, f"An error occurred while processing the file: {str(e)}")
+            messages.error(request, f"Failed to process file {file.title} for subject creation: {str(e)}")
     else:
-        # Handle unsupported file formats
-        messages.error(request, "Unsupported file format. Only .MWF files are accepted.")
-    # Redirect to the file viewing page after processing
-    return redirect('viewFile')
+        messages.info(request, f"File {file.title} imported but no subject created due to file type.")
+
 
 # Function to download a file in CSV format
 def downloadFormatCSV(request, file_id):

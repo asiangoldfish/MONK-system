@@ -1,7 +1,5 @@
 {% extends 'main.html' %}
 
-{% load static %}
-
 {% block content %}
 <div class="container mt-5">
     <h2 class="text-center mb-5">Nihon Kohden Files</h2>
@@ -9,48 +7,24 @@
     {% if files %}
         <div class="row">
             {% for file in files %}
-                {% with file.fileimport_set.first as import %}
-                    {% if not import %}
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-header bg-primary text-white d-block" style="font-size: 1.25rem;">
-                                <i class="bi bi-file-earmark-text" style="margin-right: 10px;"></i>
-                                <strong>{{ file.title }}</strong>
-                            </div>
-                            <div class="card-body">
-                                <p class="card-text">Status: <span class="text-muted">Not Imported</span></p>
-                                <a href="{% url 'importFile' file.id %}" class="btn btn-success btn-sm"><i class="bi bi-check-circle-fill"></i> Import</a>
-                            </div>
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <a href="{% url 'file' file.id %}" class="card-header bg-primary text-white d-block" style="text-decoration: none; font-size: 1.25rem;">
+                            <i class="bi bi-file-earmark-text" style="margin-right: 10px;"></i>
+                            <strong>{{ file.title }}</strong>
+                        </a>
+                        <div class="card-body">
+                            {% with file.fileimport_set.first as import %}
+                                {% if import %}
+                                    <p class="card-text"><i class="bi bi-person-check-fill"></i> Imported By: <a href="{% url 'user' import.user.id %}">{{ import.user.name }}</a></p>
+                                    <p class="card-text"><i class="bi bi-clock-fill"></i> Imported At: {{ import.imported_at|date:"Y-m-d H:i" }}</p>
+                                {% else %}
+                                    <p class="card-text">This file has not been imported correctly.</p>
+                                {% endif %}
+                            {% endwith %}
                         </div>
                     </div>
-                    {% endif %}
-                {% endwith %}
-            {% endfor %}
-            {% for file in files %}
-                {% with file.fileimport_set.first as import %}
-                    {% if import %}
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card h-100 shadow-sm">
-                            {% if import.user.user == user %}
-                                <a href="{% url 'file' file.id %}" class="card-header bg-secondary text-white d-block" style="text-decoration: none; font-size: 1.25rem;">
-                                    <i class="bi bi-file-earmark-text" style="margin-right: 10px;"></i>
-                                    <strong>{{ file.title }}</strong>
-                                </a>
-                            {% else %}
-                                <div class="card-header bg-secondary text-white d-block" style="font-size: 1.25rem;">
-                                    <i class="bi bi-file-earmark-text" style="margin-right: 10px;"></i>
-                                    <strong>{{ file.title }}</strong>
-                                </div>
-                            {% endif %}
-                            <div class="card-body">
-                                <p class="card-text"><i class="bi bi-person-check-fill"></i> Imported By: <a href="{% url 'user' import.user.id %}">{{ import.user.name }}</a></p>
-                                <p class="card-text"><i class="bi bi-clock-fill"></i> Imported At: {{ import.imported_at|date:"Y-m-d H:i" }}</p>
-                                <button class="btn btn-secondary btn-sm" disabled><i class="bi bi-x-circle-fill"></i> Already Imported</button>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                {% endwith %}
+                </div>
             {% endfor %}
         </div>
     {% else %}
@@ -58,6 +32,5 @@
             No files to display.
         </div>
     {% endif %}
-
 </div>
 {% endblock %}

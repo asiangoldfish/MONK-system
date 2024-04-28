@@ -12,11 +12,11 @@ urlpatterns = [
     path('register/', views.registerPage, name = "register"),
 
     path('viewFile/', views.viewFile, name='viewFile'),    
-    path('uploadFile/', views.uploadFile, name='uploadFile'),
-    path('uploadMultipleFiles/', views.uploadMultipleFiles, name='uploadMultipleFiles'),
+    path('importFile/', views.importFile, name='importFile'),
+    path('importMultipleFiles/', views.importMultipleFiles, name='importMultipleFiles'),
 
     path('file/<int:file_id>/', views.file, name='file'),    
-    path('import/<int:file_id>/', views.importFile, name='importFile'),
+    #path('import/<int:file_id>/', views.importFile, name='importFile'),
 
     path('user/<str:pk>', views.user, name="user"),
 

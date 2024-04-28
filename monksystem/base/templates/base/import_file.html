@@ -4,11 +4,11 @@
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-8 offset-md-2">
-            <h2 class="text-center mb-3">Upload File</h2>
-            <p class="text-center">Provide a title for your file and select the file to upload.</p>
+            <h2 class="text-center mb-3">Import File</h2>
+            <p class="text-center">Provide a title for your file and select the file to import.</p>
             <div class="card">
                 <div class="card-body">
-                    <form method="post" action="{% url 'uploadFile' %}" enctype="multipart/form-data">
+                    <form method="post" action="{% url 'importFile' %}" enctype="multipart/form-data">
                         {% csrf_token %}
                         {% for field in form %}
                             <div class="form-group">
@@ -25,23 +25,23 @@
                         {% endfor %}
                         <input type="hidden" name="submitted" value="true">
                             <div class="text-center">
-                                <button type="submit" class="btn btn-primary">Upload File</button>
+                                <button type="submit" class="btn btn-primary">Import File</button>
                             </div>
                     </form>
                 </div>
             </div>
-            <h2 class="text-center mt-5 mb-3">Upload Multiple Files</h2>
-            <p class="text-center">Select multiple files to upload at once.</p>
+            <h2 class="text-center mt-5 mb-3">Import Multiple Files</h2>
+            <p class="text-center">Select multiple files to import at once.</p>
             <div class="card">
                 <div class="card-body">
-                    <form method="post" action="{% url 'uploadMultipleFiles' %}" enctype="multipart/form-data">
+                    <form method="post" action="{% url 'importMultipleFiles' %}" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="custom-file mt-3 mb-4">
                             <input type="file" class="custom-file-input" id="multiFile" name="file_field" multiple>
                             <label class="custom-file-label" for="multiFile">Choose files...</label>
                         </div>
                         <div class="text-center">
-                            <button type="submit" class="btn btn-primary">Upload Files</button>
+                            <button type="submit" class="btn btn-primary">Import Files</button>
                         </div>
                     </form>
                 </div>
