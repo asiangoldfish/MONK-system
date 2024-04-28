@@ -24,15 +24,6 @@ from plotly.offline import plot
 
 @login_required
 def homePage(request):
-    #files = File.objects.all()
-    #if request.method == 'POST':
-    #    form = FileForm(request.POST, request.FILES)
-    #    if form.is_valid():
-    #        form.save()
-    #        return redirect('home')
-    #else:
-    #    form = FileForm()
-    #context = {'files': files, 'form': form}
     return render(request, 'base/home.html')
 
 
@@ -51,24 +42,15 @@ def project(request, pk):
     context = {'project':project}
     return render(request, 'base/project.html', context)
 
-def aboutPage(request):
-    return render(request, "base/about.html")
-
-def contactPage(request):
-    return render(request, "base/contact.html")
-
 
 @login_required
 def file(request, file_id):
     file = get_object_or_404(File, id=file_id)
     user_profile = request.user.userprofile
-
     # Retrieve all subjects linked to this file
     subjects = Subject.objects.filter(file=file)
-
     # Find projects that include these subjects
     projects = Project.objects.filter(subjects__in=subjects)
-    
      # Check if the user is part of any of these projects or has imported the file
     user_in_project = projects.filter(users=user_profile).exists()
     user_has_imported = FileImport.objects.filter(file=file, user=user_profile).exists()
@@ -102,30 +84,25 @@ def file(request, file_id):
 
 # Function for logging in a user
 def loginPage(request):
-    
     # sets the variable page to specify that this is a login page, it is passed into the context variable, and used in the html to run the correct code.
     page = 'login'
-    
     # If the user is already logged in and tries to click on the login button again, they will just get redirected to home instead. 
     if request.user.is_authenticated:
         return redirect('home')
-    
+
     # Checks if a POST request was sent. 
     if request.method == 'POST':
         # Get the username and password from the data sent in the POST request. 
         username = request.POST.get('username').lower()
         password = request.POST.get('password')
-        
         # Checks if the user exists with a try catch block. 
         try:
             user = User.objects.get(username=username)
         except:
             messages.error(request, 'User does not exist')
-        
         # Gets user object based on username and password.
         # Authenticate method will either give us an error or return back a user that matches the credentials (username and password).
         user = authenticate(request, username=username, password=password)
-        
         # Logs the user in if there is one, and returns home. 
         if user is not None:
             login(request, user)
@@ -133,8 +110,7 @@ def loginPage(request):
             return redirect('home')
         else:
             messages.error(request, 'Username or password does not exist')
-                
-    
+            
     context = {'page' : page}
     return render(request, 'base/login_register.html', context)    
 
@@ -177,17 +153,13 @@ def registerPage(request):
 
 @login_required
 def viewUser(request):
-    
     users = UserProfile.objects.all()
-    
     context = {'users' : users}
     return render(request,'base/view_user.html', context)
     
 @login_required
 def viewSubject(request):
-    
     subjects = Subject.objects.all()
-    
     context = {'subjects' : subjects}
     return render(request,'base/view_subject.html', context)
 
@@ -209,9 +181,7 @@ def viewProject(request):
 
 @login_required
 def viewFile(request):
-    
     files = File.objects.all()
-    
     context = {'files' : files}
     return render(request,'base/view_file.html', context)
 

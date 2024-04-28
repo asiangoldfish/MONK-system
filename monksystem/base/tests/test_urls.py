@@ -14,15 +14,6 @@ class TestUrls(SimpleTestCase):
         # Use assertEqual to ensure the view function is the one intended. Assert that the resolved view function is homePage.
         self.assertEquals(resolved, homePage)
     
-    def test_about_url_resolves(self):
-        url = reverse('about')
-        resolved = resolve(url).func
-        self.assertEquals(resolved, aboutPage)
-    
-    def test_contact_url_resolves(self):
-        url = reverse('contact')
-        resolved = resolve(url).func
-        self.assertEquals(resolved, contactPage)
     
     def test_login_url_resolves(self):
         url = reverse('login')
