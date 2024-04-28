@@ -6,8 +6,6 @@
     <div class="card">
         <form action="{% url 'downloadFormatCSV' file.id %}" method="post">
             {% csrf_token %}
-            
-            <!-- Fieldset for Channel Selection -->
             <!-- Fieldset for Channel Selection -->
             <fieldset class="card-header">
                 <h5>Channel Selection</h5>
@@ -26,11 +24,7 @@
                     <button type="button" class="btn btn-primary select-all-btn btn-sm mr-2">Select All</button>
                     <button type="button" class="btn btn-secondary deselect-all-btn btn-sm">Deselect All</button>
                 </div>
-
-
             </fieldset>
-
-
             <!-- Fieldset for Time Interval Selection -->
             <fieldset class="card">
                 <div class="card-header"><h5>Time Interval Selection</h5></div>
@@ -41,42 +35,40 @@
                     <input type="number" id="end_time" name="end_time" min="0" step="0.1" placeholder="Set end time..." class="form-control">
                 </div>
             </fieldset>
-
             <!-- Download CSV Button -->
             <div class="card-footer text-center">
                 <button type="submit" class="btn btn-success" style="min-width: 200px;"><strong>Download CSV</strong></button>
             </div>
-
         </form>
 
-    <fieldset class = "card">
-        <!-- Section for downloading MFER data with anonymization options -->
-        {% if is_MFER_file %}
-        <div class="card-header d-flex justify-content-center">
-            <div class="d-flex align-items-center">
-                <!-- Form for downloading MFER header -->
-                <form action="{% url 'downloadHeaderMFER' file.id %}" method="post" class="mr-5 d-flex align-items-center">
-                    {% csrf_token %}
-                    <div class="custom-control custom-switch mr-2">
-                        <input type="checkbox" class="custom-control-input" id="anonymizeSwitch" name="anonymize" value="true">
-                        <label class="custom-control-label" for="anonymizeSwitch">Anonymize</label>
-                    </div>
-                    <button type="submit" class="btn btn-info"><strong>Download MFER Header</strong></button>
-                </form>
+        <fieldset class = "card">
+            <!-- Section for downloading MFER data with anonymization options -->
+            {% if is_MFER_file %}
+            <div class="card-header d-flex justify-content-center">
+                <div class="d-flex align-items-center">
+                    <!-- Form for downloading MFER header -->
+                    <form action="{% url 'downloadHeaderMFER' file.id %}" method="post" class="mr-5 d-flex align-items-center">
+                        {% csrf_token %}
+                        <div class="custom-control custom-switch mr-2">
+                            <input type="checkbox" class="custom-control-input" id="anonymizeSwitch" name="anonymize" value="true">
+                            <label class="custom-control-label" for="anonymizeSwitch">Anonymize</label>
+                        </div>
+                        <button type="submit" class="btn btn-info"><strong>Download MFER Header</strong></button>
+                    </form>
 
-                <!-- Form for downloading raw MFER data -->
-                <form action="{% url 'downloadMWF' file.id %}" method="get" class="mr-5 d-flex align-items-center">
-                    {% csrf_token %}
-                    <div class="custom-control custom-switch mr-2">
-                        <input type="checkbox" class="custom-control-input" id="anonymizeData" name="anonymize" value="true">
-                        <label class="custom-control-label" for="anonymizeData">Anonymize</label>
-                    </div>
-                    <button type="submit" class="btn btn-info"><strong>Download MWF</strong></button>
-                </form>
+                    <!-- Form for downloading raw MFER data -->
+                    <form action="{% url 'downloadMWF' file.id %}" method="get" class="mr-5 d-flex align-items-center">
+                        {% csrf_token %}
+                        <div class="custom-control custom-switch mr-2">
+                            <input type="checkbox" class="custom-control-input" id="anonymizeData" name="anonymize" value="true">
+                            <label class="custom-control-label" for="anonymizeData">Anonymize</label>
+                        </div>
+                        <button type="submit" class="btn btn-info"><strong>Download MWF</strong></button>
+                    </form>
+                </div>
             </div>
-        </div>
-        {% endif %}
-    </fieldset>
+            {% endif %}
+        </fieldset>
 
         <!-- Display File Content -->
         <div class="card-body">
@@ -93,9 +85,32 @@
             <a href="{{ file.file.url }}" class="btn btn-primary btn-lg" target="_blank">Download File</a>
             {% endif %}
         </div>
+                
+        <div class="card-footer">
+            <div class="form-group">
+                <label for="combined-checkbox"><i class="bi bi-diagram-3" style="margin-right: 10px;"></i>Combined Graph:</label>
+                <input type="checkbox" id="combined-checkbox" name="combined">
+            </div>
+            <div class="form-group">
+                <label for="rows-input"><i class="bi bi-list-ol" style="margin-right: 10px;"></i>Number of Rows:</label>
+                <input type="number" id="rows-input" name="rows" value="10000" min="1">
+            </div>
+            
+            <div class="card-footer">
+                <div>
+                    <div id="graph-container" class="mt-4"></div>
+                    <div id="loading-message" style="display:none;" class="alert alert-info">Loading...
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                </div>
+        
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <button id="plot-graph" class="btn btn-primary btn-lg" data-file-id="{{ file.id }}" style="width: 55%; margin-bottom: 15px;">
+                        View vitals</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-
 
 
 <script>
@@ -119,6 +134,45 @@
     
         deselectAllButton.addEventListener('click', function() {
             selectAllChannels(false);
+        });
+    });
+</script>
+
+
+<script>
+    document.getElementById('plot-graph').addEventListener('click', function() {
+        var file_id = this.getAttribute('data-file-id');
+        var combined = document.getElementById('combined-checkbox').checked ? 'true' : 'false';
+        var rows = document.getElementById('rows-input').value;
+
+        var url = `/plotGraph/${file_id}/?combined=${combined}&rows=${rows}`;
+        
+        // Show loading message
+        var loadingMessage = document.getElementById('loading-message');
+        loadingMessage.style.display = 'block';
+
+        fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                console.error('Error:', data.error);
+            } else {
+                var plotWindow = window.open("", "_blank", "width=800,height=600");
+                plotWindow.document.write('<html><head><title>Plot Graph</title><script src="https://cdn.plot.ly/plotly-latest.min.js"><\/script></head><body>' + data.graph_html + '</body></html>');
+                plotWindow.document.close();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        })
+        .finally(() => {
+            // Hide loading message
+            loadingMessage.style.display = 'none';
         });
     });
 </script>
