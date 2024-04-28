@@ -223,23 +223,26 @@ def addProject(request):
     if request.method == "POST":
         rekNummer = request.POST.get('rekNummer')
         description = request.POST.get('description')
-        users_ids = request.POST.getlist('users')  
-        subjects_ids = request.POST.getlist('subjects')  
+        user_ids = request.POST.getlist('users')
+        subject_ids = request.POST.getlist('subjects')
 
-        # Create project instance
         project = Project.objects.create(rekNummer=rekNummer, description=description)
+        project.users.set(UserProfile.objects.filter(id__in=user_ids))
 
-        # Set doctors and subjects for the project
-        project.users.set(UserProfile.objects.filter(id__in=users_ids))
-        project.subjects.set(Subject.objects.filter(id__in=subjects_ids))
+        # Filter subjects based on those that have been imported by the users in the project
+        valid_subjects = Subject.objects.filter(
+            id__in=subject_ids,
+            file__fileimport__user__id__in=user_ids
+        )
+        project.subjects.set(valid_subjects)
 
         messages.success(request, "Project added successfully.")
         return redirect("viewProject")
-    
-    users = UserProfile.objects.all()
-    subjects = Subject.objects.all()
-    context = {'users' : users, 'subjects' : subjects}
-    return render(request, 'base/add_project.html', context)
+    else:
+        users = UserProfile.objects.all()
+        # Display only subjects linked to files imported by the user
+        subjects = Subject.objects.filter(file__fileimport__user=request.user.userprofile)
+        return render(request, 'base/add_project.html', {'users': users, 'subjects': subjects})
 
 
 @login_required
@@ -248,18 +251,28 @@ def editProject(request, project_id):
     if request.method == 'POST':
         user_ids = request.POST.getlist('users')
         subject_ids = request.POST.getlist('subjects')
-        if user_ids:
-            project.users.set(UserProfile.objects.filter(id__in=user_ids))
-        if subject_ids:
-            project.subjects.set(Subject.objects.filter(id__in=subject_ids))
+
+        project.users.set(UserProfile.objects.filter(id__in=user_ids))
+
+        # filter subjects to ensure they are imported by the users
+        valid_subjects = Subject.objects.filter(
+            id__in=subject_ids,
+            file__fileimport__user__id__in=user_ids
+        )
+        project.subjects.set(valid_subjects)
+
         project.save()
         messages.success(request, "Project updated successfully.")
         return redirect('viewProject')
     else:
         users = UserProfile.objects.all()
-        subjects = Subject.objects.all()
-        context = {'project': project, 'users': users, 'subjects': subjects}
-        return render(request, 'base/edit_project.html', context)
+        subjects = Subject.objects.filter(file__fileimport__user=request.user.userprofile)
+        return render(request, 'base/edit_project.html', {
+            'project': project,
+            'users': users,
+            'subjects': subjects
+        })
+
     
     
 def leaveProject(request, project_id):
