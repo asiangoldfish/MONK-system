@@ -22,12 +22,14 @@
         <fieldset style="border: 1px solid #ccc; padding: 20px; margin-bottom: 20px;">
             <legend style="width: auto; padding: 0 10px; margin-bottom: 10px;">Select Subjects</legend>
             {% for subject in subjects %}
+            {% if subject.file.fileimport_set.first.user.user == request.user %}
             <div class="form-check" style="margin-bottom: 10px;">
                 <input class="form-check-input" type="checkbox" name="subjects" value="{{ subject.id }}" id="subject{{ subject.id }}" {% if subject in project.subjects.all %}checked{% endif %} style="margin-right: 10px;">
                 <label class="form-check-label" for="subject{{ subject.id }}">
                     {{ subject.file.title }} - {{ subject.subject_id }}
                 </label>
             </div>
+            {% endif %}
             {% endfor %}
         </fieldset>
         

@@ -248,30 +248,50 @@ def addProject(request):
 @login_required
 def editProject(request, project_id):
     project = get_object_or_404(Project, id=project_id)
+    user_profile = request.user.userprofile
+
     if request.method == 'POST':
         user_ids = request.POST.getlist('users')
-        subject_ids = request.POST.getlist('subjects')
+        new_subject_ids = set(map(int, request.POST.getlist('subjects')))
+
+        # Fetch existing subjects in the project
+        existing_subject_ids = set(project.subjects.values_list('id', flat=True))
+
+        # Get IDs of subjects the current user is allowed to modify
+        allowed_subject_ids = set(Subject.objects.filter(
+            file__fileimport__user=user_profile
+        ).values_list('id', flat=True))
+
+        # Determine which new subjects are valid (must be allowed and new)
+        valid_new_subject_ids = new_subject_ids.intersection(allowed_subject_ids)
+
+        # Combine existing subjects with valid new ones
+        updated_subject_ids = existing_subject_ids.union(valid_new_subject_ids)
+
+        # Remove any unselected subjects that the user is allowed to remove
+        subjects_to_remove = allowed_subject_ids.intersection(existing_subject_ids.difference(new_subject_ids))
+        final_subject_ids = updated_subject_ids.difference(subjects_to_remove)
 
         project.users.set(UserProfile.objects.filter(id__in=user_ids))
-
-        # filter subjects to ensure they are imported by the users
-        valid_subjects = Subject.objects.filter(
-            id__in=subject_ids,
-            file__fileimport__user__id__in=user_ids
-        )
-        project.subjects.set(valid_subjects)
+        project.subjects.set(Subject.objects.filter(id__in=final_subject_ids))
 
         project.save()
         messages.success(request, "Project updated successfully.")
         return redirect('viewProject')
     else:
-        users = UserProfile.objects.all()
-        subjects = Subject.objects.filter(file__fileimport__user=request.user.userprofile)
-        return render(request, 'base/edit_project.html', {
+        # Show all users and subjects for admin or relevant subjects for regular users
+        users = UserProfile.objects.all()  # or filter based on some admin role if needed
+        subjects = Subject.objects.filter(
+            id__in=project.subjects.values_list('id', flat=True) | 
+            Subject.objects.filter(file__fileimport__user=user_profile).values_list('id', flat=True)
+        )
+
+        context = {
             'project': project,
             'users': users,
             'subjects': subjects
-        })
+        }
+        return render(request, 'base/edit_project.html', context)
 
     
     
