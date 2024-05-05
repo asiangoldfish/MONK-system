@@ -15,7 +15,11 @@ git clone https://github.com/MONK-system/system.git
 ```
 pip install django
 pip install git+https://github.com/MONK-system/library.git
-pip install plotly pandas
+pip install plotly
+pip install pandas
+pip install datetime
+pip install numpy
+pip install selenium
 ```
 
 Check out https://github.com/MONK-system/library for installation prerequisistes.
