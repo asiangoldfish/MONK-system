@@ -4,7 +4,7 @@
 <h2 class="text-center mt-4 mb-3 pt-3">File Details</h2>
 <div class="container mt-5">
     <div class="card">
-        <form action="{% url 'downloadFormatCSV' file.id %}" method="post">
+        <form action="{% url 'download_format_csv' file.id %}" method="post">
             {% csrf_token %}
             <!-- Fieldset for Channel Selection -->
             <fieldset class="card-header">
@@ -47,7 +47,7 @@
             <div class="card-header d-flex justify-content-center">
                 <div class="d-flex align-items-center">
                     <!-- Form for downloading MFER header -->
-                    <form action="{% url 'downloadHeaderMFER' file.id %}" method="post" class="mr-5 d-flex align-items-center">
+                    <form action="{% url 'download_mfer_header' file.id %}" method="post" class="mr-5 d-flex align-items-center">
                         {% csrf_token %}
                         <div class="custom-control custom-switch mr-2">
                             <input type="checkbox" class="custom-control-input" id="anonymizeSwitch" name="anonymize" value="true">
@@ -57,11 +57,11 @@
                     </form>
 
                     <!-- Form for downloading raw MFER data -->
-                    <form action="{% url 'downloadMWF' file.id %}" method="get" class="mr-5 d-flex align-items-center">
+                    <form action="{% url 'download_mwf' file.id %}" method="get" class="mr-5 d-flex align-items-center">
                         {% csrf_token %}
                         <div class="custom-control custom-switch mr-2">
-                            <input type="checkbox" class="custom-control-input" id="anonymizeData" name="anonymize" value="true">
-                            <label class="custom-control-label" for="anonymizeData">Anonymize</label>
+                            <input type="checkbox" class="custom-control-input" id="anonymize_data" name="anonymize" value="true">
+                            <label class="custom-control-label" for="anonymize_data">Anonymize</label>
                         </div>
                         <button type="submit" class="btn btn-info"><strong>Download MWF</strong></button>
                     </form>
@@ -145,7 +145,7 @@
         var combined = document.getElementById('combined-checkbox').checked ? 'true' : 'false';
         var rows = document.getElementById('rows-input').value;
 
-        var url = `/plotGraph/${file_id}/?combined=${combined}&rows=${rows}`;
+        var url = `/plot_graph/${file_id}/?combined=${combined}&rows=${rows}`;
         
         // Show loading message
         var loadingMessage = document.getElementById('loading-message');

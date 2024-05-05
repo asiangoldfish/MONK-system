@@ -8,7 +8,7 @@
             <p class="text-center">Provide a title for your file and select the file to import.</p>
             <div class="card">
                 <div class="card-body">
-                    <form method="post" action="{% url 'importFile' %}" enctype="multipart/form-data">
+                    <form method="post" action="{% url 'import_file' %}" enctype="multipart/form-data">
                         {% csrf_token %}
                         {% for field in form %}
                             <div class="form-group">
@@ -34,7 +34,7 @@
             <p class="text-center">Select multiple files to import at once.</p>
             <div class="card">
                 <div class="card-body">
-                    <form method="post" action="{% url 'importMultipleFiles' %}" enctype="multipart/form-data">
+                    <form method="post" action="{% url 'import_multiple_files' %}" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="custom-file mt-3 mb-4">
                             <input type="file" class="custom-file-input" id="multiFile" name="file_field" multiple>

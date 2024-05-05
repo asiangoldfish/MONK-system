@@ -1,6 +1,5 @@
 # Standard library imports for various functionalities
 import os
-import numpy as np
 import pandas as pd
 from datetime import datetime
 import plotly.graph_objects as go
@@ -11,9 +10,7 @@ from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, HttpR
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-
 from django.views.decorators.http import require_GET, require_POST
-
 from django.contrib.auth import authenticate,login,logout
 # Importing models for the database schema related to the application
 from .models import Subject, UserProfile, Project, File, FileImport
@@ -23,11 +20,10 @@ from .forms import FileForm, UserRegistrationForm, FileFieldForm
 from monklib import get_header, convert_to_csv, Data
 # Plotly import for creating subplots in graphs
 from plotly.subplots import make_subplots
-from plotly.offline import plot
 
 @login_required
 @require_GET
-def homePage(request):
+def home_page(request):
     return render(request, 'base/home.html')
 
 @login_required
@@ -50,7 +46,6 @@ def project(request, pk):
     project = Project.objects.get(id=pk)
     context = {'project':project}
     return render(request, 'base/project.html', context)
-
 
 @login_required
 def file(request, file_id):
@@ -100,8 +95,9 @@ def file(request, file_id):
 
 
 # Function for logging in a user
-def loginPage(request):
-    # sets the variable page to specify that this is a login page, it is passed into the context variable, and used in the html to run the correct code.
+def login_page(request):
+    # sets the variable page to specify that this is a login page, it is passed into the context variable, 
+    # and used in the html to run the correct code.
     page = 'login'
     # If the user is already logged in and tries to click on the login button again, they will just get redirected to home instead. 
     if request.user.is_authenticated:
@@ -131,12 +127,14 @@ def loginPage(request):
     context = {'page' : page}
     return render(request, 'base/login_register.html', context)    
 
+
 # Function for logging out a user. 
-def logoutUser(request):
+def logout_user(request):
     logout(request)
     return redirect('home')
 
-def registerPage(request):
+
+def register_page(request):
     # else is used in the html, so no need for a page variable here. 
     #form = UserCreationForm()
     form = UserRegistrationForm()
@@ -148,8 +146,10 @@ def registerPage(request):
 
         # Checks if the form is valid
         if form.is_valid():
-            user = form.save(commit=False) # saving the form, freezing it in time. If the form is valid, the user is created and we want to be able to access it right away. This is why we set commit = False
-            user.username = user.username.lower() # Now that the user is created, we can access their credentials, like username and password. We lowercase the username of the user. 
+            user = form.save(commit=False) # saving the form, freezing it in time. 
+            # If the form is valid, the user is created and we want to be able to access it right away. This is why we set commit = False
+            user.username = user.username.lower() # Now that the user is created, we can access their credentials, like username and password.
+            # We lowercase the username of the user. 
             user.save() # saves the user. 
             
             # Now, use the extra fields to create a user instance
@@ -170,15 +170,15 @@ def registerPage(request):
 
 @login_required
 @require_GET
-def viewSubject(request):
+def view_subjects(request):
     subjects = Subject.objects.all()
     context = {'subjects' : subjects}
-    return render(request,'base/view_subject.html', context)
+    return render(request,'base/view_subjects.html', context)
 
 
 @login_required
 @require_GET
-def viewProject(request):
+def view_projects(request):
     # Check if the logged-in user is associated with a user instance
     try:
         user_profile = request.user.userprofile
@@ -189,12 +189,12 @@ def viewProject(request):
         projects = Project.objects.none()
     
     context = {'projects': projects}
-    return render(request, 'base/view_project.html', context)
+    return render(request, 'base/view_projects.html', context)
     
 
 @login_required
 @require_GET
-def viewFile(request):
+def view_files(request):
     try: 
         user_profile = request.user.userprofile
         # Only include files with successful subject creation or another success indicator
@@ -202,43 +202,12 @@ def viewFile(request):
     except UserProfile.DoesNotExist:
         files = File.objects.none()
     context = {'files': files}
-    return render(request, 'base/view_file.html', context)
+    return render(request, 'base/view_files.html', context)
 
-
-#@login_required
-#def addSubject(request):
-    if request.method == "POST":
-        subject_id = request.POST.get('subject_id')
-        name = request.POST.get('name')
-        gender = request.POST.get('gender')
-        birth_date = request.POST.get('birth_date')
-        file_id = request.POST.get('file_id') or None
-
-        # Handle the optional file association
-        file_instance = None
-        if file_id:
-            file_instance = File.objects.get(id=file_id)
-
-        try:
-            Subject.objects.create(
-                subject_id=subject_id,
-                name=name,
-                gender=gender,
-                birth_date=birth_date if birth_date else None,  # Handle empty birth_date
-                file=file_instance
-            )
-            messages.success(request, "Subject added successfully.")
-            return redirect("viewSubject")
-        except Exception as e:
-            messages.error(request, f"An error occurred: {str(e)}")
-
-    # If GET request or form not valid, render the form page again
-    files = File.objects.all()  # Provide list of files for the form
-    return render(request, 'base/add_subject.html', {'files': files})
 
 # Function handles creation of new projects with specified users and subjects.
 @login_required  # Decorator to ensure only authenticated users can access this function.
-def addProject(request):
+def add_project(request):
     # Check if the request method is POST, indicating form submission.
     if request.method == "POST":
         # Retrieve data from the POST request for new project creation.
@@ -262,7 +231,7 @@ def addProject(request):
         # Notify the user of successful project creation.
         messages.success(request, "Project added successfully.")
         # Redirect to the project view page.
-        return redirect("viewProject")
+        return redirect("view_projects")
     # If the request is not POST (i.e., a GET request), prepare data for the form.
     else:
         # Retrieve all users to display in the user selection part of the form.
@@ -274,7 +243,7 @@ def addProject(request):
 
 # Function for editing a project, allowing the user to add/remove other users and subjects.
 @login_required
-def editProject(request, project_id):
+def edit_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     user_profile = request.user.userprofile
 
@@ -305,7 +274,7 @@ def editProject(request, project_id):
 
         project.save()
         messages.success(request, "Project updated successfully.")
-        return redirect('viewProject')
+        return redirect('view_projects')
     else:
         # Show all users and subjects for admin or relevant subjects for regular users
         users = UserProfile.objects.all()  # or filter based on some admin role if needed
@@ -323,7 +292,7 @@ def editProject(request, project_id):
 
 
 # Function that allows user to leave a project which they are currently apart of.
-def leaveProject(request, project_id):
+def leave_project(request, project_id):
     # Retrieve the project by ID or return a 404 if it does not exist.
     project = get_object_or_404(Project, id=project_id)
     # Access the user's profile from the User model, a one-to-one relationship.    
@@ -341,11 +310,11 @@ def leaveProject(request, project_id):
         # If the user is not part of the project, send an error message.
         messages.error(request, "You are not a member of this project.")
     # Redirect the user to the project view page, regardless of the outcome.    
-    return redirect('viewProject')
+    return redirect('view_projects')
 
 # Function for importing a file.
 @login_required
-def importFile(request):
+def import_file(request):
     # Initialize a new form instance for file uploads.
     form = FileForm()
     # Check if the form has been submitted with file data.
@@ -367,7 +336,7 @@ def importFile(request):
                 user_profile = request.user.userprofile
             except UserProfile.DoesNotExist:
                 messages.error(request, "You are not registered as a regular user.")
-                return redirect('viewFile')  # Redirect to a view where users can create/update their profile
+                return redirect('view_files')  # Redirect to a view where users can create/update their profile
 
             # Save the file instance created from the form.
             new_file = form.save()
@@ -377,7 +346,7 @@ def importFile(request):
             process_and_create_subject(new_file, request)
 
             messages.success(request, "File imported and processed successfully.")
-            return redirect('viewFile')
+            return redirect('view_files')
         else:
             messages.error(request, "Please correct the error below.")
     # Render the import file page with the form.
@@ -385,7 +354,7 @@ def importFile(request):
 
 # Function for importing multiple files
 @login_required
-def importMultipleFiles(request):
+def import_multiple_files(request):
     # Initialize the form designed to handle multiple file uploads.
     form = FileFieldForm()
     # Handle the POST request with file data.
@@ -411,7 +380,7 @@ def importMultipleFiles(request):
                     user_profile = request.user.userprofile
                 except UserProfile.DoesNotExist:
                     messages.error(request, "You are not registered as a regular user.")
-                    return redirect('viewFile')  # Redirect to a view where users can create/update their profile
+                    return redirect('view_files')  # Redirect to a view where users can create/update their profile
 
                 for f in valid_files:
                     base_title = os.path.splitext(f.name)[0]
@@ -422,7 +391,7 @@ def importMultipleFiles(request):
                 messages.success(request, "All valid .MWF files imported and processed successfully.")
             else:
                 messages.error(request, "No valid .MWF files provided.")
-            return redirect('viewFile')
+            return redirect('view_files')
         else:
             messages.error(request, "Please correct the error below.")
     # Render the import multiple files page with the form.
@@ -473,7 +442,7 @@ def process_and_create_subject(file, request):
 
 # Function to download a file in CSV format
 @require_POST
-def downloadFormatCSV(request, file_id):
+def download_format_csv(request, file_id):
     # Check for POST request to ensure that the request is a result of form submission
     if request.method == 'POST':
         # Retrieve the list of channels selected by the user from the form
@@ -513,7 +482,7 @@ def downloadFormatCSV(request, file_id):
         return HttpResponseForbidden("Invalid request")
 
 # Function to download the header information of an MFER file
-def downloadHeaderMFER(request, file_id):
+def download_mfer_header(request, file_id):
     # Retrieve the file object, or return a 404 error if it doesn't exist
     file_instance = get_object_or_404(File, id=file_id)
     # Get the path of the file on the server
@@ -523,7 +492,7 @@ def downloadHeaderMFER(request, file_id):
         # Check if anonymization is requested via POST parameters
         if 'anonymize' in request.POST and request.POST['anonymize'] == 'true':
             # Anonymize the data if requested
-            anonymized_file_path = anonymizeData(file_path)
+            anonymized_file_path = anonymize_data(file_path)
             # Get the header information from the anonymized file using function from monklib
             header_info = get_header(anonymized_file_path)
         else:
@@ -540,7 +509,7 @@ def downloadHeaderMFER(request, file_id):
         return HttpResponse(f"An error occurred while retrieving the header: {str(e)}", status=500)
 
 # Function for downloading the .MWF file 
-def downloadMWF(request, file_id):
+def download_mwf(request, file_id):
     # Retrieve the file object, or return a 404 error if it doesn't exist
     file_instance = get_object_or_404(File, id=file_id)
 
@@ -554,7 +523,7 @@ def downloadMWF(request, file_id):
         # Check if anonymization is requested via GET parameters
         if request.GET.get('anonymize') == 'true':
             # Anonymize the data if requested
-            file_path = anonymizeData(file_path)
+            file_path = anonymize_data(file_path)
 
         # Open and read the content of the file
         with open(file_path, 'rb') as file:
@@ -571,7 +540,7 @@ def downloadMWF(request, file_id):
 
 
 # Function to anonymize data within an MFER file
-def anonymizeData(file_path):
+def anonymize_data(file_path):
     try:
         # Load the data using monklib's Data class
         data = Data(file_path)
@@ -588,7 +557,7 @@ def anonymizeData(file_path):
         raise Exception(f"Failed to anonymize and save the file: {str(e)}")
 
 # Function to plot graphs based on CSV data
-def plotGraph(request, file_id):
+def plot_graph(request, file_id):
     try:
         # Retrieve parameters from the GET request
         # Determine if a combined graph is requested

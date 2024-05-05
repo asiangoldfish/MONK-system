@@ -31,7 +31,7 @@ class TestUserRegistrationAndFileImport(StaticLiveServerTestCase):
         with tempfile.NamedTemporaryFile(suffix=".mwf", delete=False, mode='w') as tmp_file:
             tmp_file.write("This is not a valid content")
             tmp_path = tmp_file.name
-        self.browser.get(f"{self.live_server_url}/importFile/")
+        self.browser.get(f"{self.live_server_url}/import_file/")
         self.browser.find_element(By.NAME, "title").send_keys("Invalid MWF File")
         self.browser.find_element(By.NAME, "file").send_keys(tmp_path)
         self.browser.find_element(By.CSS_SELECTOR, "form").submit()

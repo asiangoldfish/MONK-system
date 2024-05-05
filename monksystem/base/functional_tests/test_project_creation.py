@@ -28,7 +28,7 @@ class TestProjectCreationAndView(StaticLiveServerTestCase):
 
     def create_project(self, rek_nummer, description):
         # Navigate to the Add Project page
-        self.browser.get(f"{self.live_server_url}/addProject/")
+        self.browser.get(f"{self.live_server_url}/add_project/")
         # Fill out the REK nummer and description fields
         self.browser.find_element(By.NAME, "rekNummer").send_keys(rek_nummer)
         self.browser.find_element(By.NAME, "description").send_keys(description)

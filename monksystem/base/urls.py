@@ -4,33 +4,33 @@ from . import views
 
 
 urlpatterns = [
-    path('', views.homePage, name="home"),
+    path('', views.home_page, name="home"),
     
-    path('accounts/login/', views.loginPage, name='login'),
-    path('login/', views.loginPage, name = "login"),
-    path('logout/', views.logoutUser, name = "logout"),
-    path('register/', views.registerPage, name = "register"),
+    path('accounts/login/', views.login_page, name='login'),
+    path('login/', views.login_page, name = "login"),
+    path('logout/', views.logout_user, name = "logout"),
+    path('register/', views.register_page, name = "register"),
 
     path('file/<int:file_id>/', views.file, name='file'),    
-    path('viewFile/', views.viewFile, name='viewFile'),    
-    path('importFile/', views.importFile, name='importFile'),
-    path('importMultipleFiles/', views.importMultipleFiles, name='importMultipleFiles'),
+    path('view_files/', views.view_files, name='view_files'),    
+    path('import_file/', views.import_file, name='import_file'),
+    path('import_multiple_files/', views.import_multiple_files, name='import_multiple_files'),
 
     path('user/<str:pk>', views.user, name="user"),
 
     path('subject/<str:pk>', views.subject, name="subject"),
-    path('viewSubject/', views.viewSubject, name = "viewSubject"),
+    path('view_subjects/', views.view_subjects, name = "view_subjects"),
     #path('addSubject/', views.addSubject, name = "addSubject"),
 
     path('project/<str:pk>', views.project, name="project"),
-    path('viewProject/', views.viewProject, name = "viewProject"),
-    path('addProject/', views.addProject, name = "addProject"),
-    path('leaveProject/<int:project_id>/', views.leaveProject, name='leaveProject'),
-    path('editProject/<int:project_id>/', views.editProject, name='editProject'),
+    path('view_projects/', views.view_projects, name = "view_projects"),
+    path('add_project/', views.add_project, name = "add_project"),
+    path('leave_project/<int:project_id>/', views.leave_project, name='leave_project'),
+    path('edit_project/<int:project_id>/', views.edit_project, name='edit_project'),
     
-    path('download-MFER-Header/<int:file_id>/', views.downloadHeaderMFER, name='downloadHeaderMFER'),
-    path('download-MWF/<int:file_id>/', views.downloadMWF, name='downloadMWF'),
-    path('plotGraph/<int:file_id>/', views.plotGraph, name='plotGraph'),
-    path('download-CSV-Format/<int:file_id>/', views.downloadFormatCSV, name='downloadFormatCSV'),
+    path('download-MFER-Header/<int:file_id>/', views.download_mfer_header, name='download_mfer_header'),
+    path('download-MWF/<int:file_id>/', views.download_mwf, name='download_mwf'),
+    path('plot_graph/<int:file_id>/', views.plot_graph, name='plot_graph'),
+    path('download-CSV-Format/<int:file_id>/', views.download_format_csv, name='download_format_csv'),
     
 ]

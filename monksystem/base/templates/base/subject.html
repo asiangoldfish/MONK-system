@@ -59,7 +59,7 @@
         var combined = document.getElementById('combined-checkbox').checked ? 'true' : 'false';
         var rows = document.getElementById('rows-input').value;
 
-        var url = `/plotGraph/${file_id}/?combined=${combined}&rows=${rows}`;
+        var url = `/plot_graph/${file_id}/?combined=${combined}&rows=${rows}`;
         
         // Show loading message
         var loadingMessage = document.getElementById('loading-message');

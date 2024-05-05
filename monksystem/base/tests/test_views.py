@@ -35,7 +35,7 @@ class TestViews(TestCase):
         self.temp_file.close()  # Clean up
         os.unlink(self.temp_file.name)  # Ensure temporary file is deleted
 
-    def test_homePage_logged_in(self):
+    def test_home_page_logged_in(self):
         self.client.login(username='testuser', password='password123')
         response = self.client.get(reverse('home'))
         self.assertEqual(response.status_code, 200)
@@ -72,11 +72,11 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 302)  # Check for redirect after successful registration
         self.assertTrue(User.objects.filter(username='newuser').exists())
 
-    def test_view_subject_auth(self):
+    def test_view_subjects_auth(self):
         self.client.login(username='testuser', password='password123')
-        response = self.client.get(reverse('viewSubject'))
+        response = self.client.get(reverse('view_subjects'))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'base/view_subject.html')
+        self.assertTemplateUsed(response, 'base/view_subjects.html')
 
     def test_import_file_post(self):
         self.client.login(username='testuser', password='password123')
@@ -88,14 +88,14 @@ class TestViews(TestCase):
                 'title': 'Uploaded Test File',
                 'submitted': 'true'
             }
-            response = self.client.post(reverse('importFile'), data=post_data)
+            response = self.client.post(reverse('import_file'), data=post_data)
             self.assertEqual(response.status_code, 302)  # Expect redirect after file upload
 
-    def test_view_project_auth(self):
+    def test_view_projects_auth(self):
         self.client.login(username='testuser', password='password123')
-        response = self.client.get(reverse('viewProject'))
+        response = self.client.get(reverse('view_projects'))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'base/view_project.html')
+        self.assertTemplateUsed(response, 'base/view_projects.html')
 
     def test_file_access_permission(self):
         self.client.login(username='testuser', password='password123')
@@ -109,7 +109,7 @@ class TestViews(TestCase):
 
     def test_download_mwf(self):
         self.client.login(username='testuser', password='password123')
-        response = self.client.get(reverse('downloadMWF', args=[self.file.id]))
+        response = self.client.get(reverse('download_mwf', args=[self.file.id]))
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response['Content-Type'], 'application/octet-stream')
         self.assertIn('attachment; filename="', response['Content-Disposition'])
@@ -128,6 +128,6 @@ class TestViews(TestCase):
                     SimpleUploadedFile(name='test2.mwf', content=tmp2.read(), content_type='application/octet-stream')
                 ]
             }
-            response = self.client.post(reverse('importMultipleFiles'), {'file_field': files}, follow=True)
+            response = self.client.post(reverse('import_multiple_files'), {'file_field': files}, follow=True)
             self.assertEqual(response.status_code, 200)
             self.assertTrue(File.objects.filter(title__contains='test').count(), 2)

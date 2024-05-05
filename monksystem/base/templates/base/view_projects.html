@@ -16,8 +16,8 @@
                         <strong>Project: {{ project.rekNummer }}</strong>
                     </a>
                     <div>
-                        <a href="{% url 'editProject' project.id %}" class="btn btn-secondary btn-sm me-1">Edit Project</a>
-                        <a href="{% url 'leaveProject' project.id %}" class="btn btn-danger btn-sm">Leave Project</a>
+                        <a href="{% url 'edit_project' project.id %}" class="btn btn-secondary btn-sm me-1">Edit Project</a>
+                        <a href="{% url 'leave_project' project.id %}" class="btn btn-danger btn-sm">Leave Project</a>
                     </div>
                     {% else %}
                     <span>
