@@ -12,20 +12,23 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth import authenticate,login,logout
-# Importing models for the database schema related to the application
-from .models import Subject, UserProfile, Project, File, FileImport
-# Forms for handling file import and user registration
-from .forms import FileForm, UserRegistrationForm, FileFieldForm
 # Importing functionalities from monklib for handling medical data
 from monklib import get_header, convert_to_csv, Data
 # Plotly import for creating subplots in graphs
 from plotly.subplots import make_subplots
+# Importing models for the database schema related to the application
+from .models import Subject, UserProfile, Project, File, FileImport
+# Forms for handling file import and user registration
+from .forms import FileForm, UserRegistrationForm, FileFieldForm
 
+
+# Function for rendering the home.html template, which displays the home screen of the website.
 @login_required
 @require_GET
 def home_page(request):
     return render(request, 'base/home.html')
 
+# Function for rendering the subject.html template, which displays details about a subject.
 @login_required
 @require_GET
 def subject(request, pk):
@@ -33,6 +36,7 @@ def subject(request, pk):
     context = {'subject':subject}
     return render(request, 'base/subject.html', context)
 
+# Function for rendering the user.html template, which displays details about a user.
 @login_required
 @require_GET
 def user(request, pk):
@@ -40,6 +44,7 @@ def user(request, pk):
     context = {'user':user}
     return render(request, 'base/user.html', context)
 
+# Function for rendering the project.html template, which displays the details of a project.
 @login_required
 @require_GET
 def project(request, pk):
@@ -47,6 +52,7 @@ def project(request, pk):
     context = {'project':project}
     return render(request, 'base/project.html', context)
 
+# Function for handling the rendering of the file.html template, which displays all the details about a file. 
 @login_required
 def file(request, file_id):
     # Retrieves the file or throws a 404 error if not found.
@@ -94,7 +100,7 @@ def file(request, file_id):
     return render(request, 'base/file.html', context)
 
 
-# Function for logging in a user
+# Function for rendering the login_register.html template, which handles logging in of users.
 def login_page(request):
     # sets the variable page to specify that this is a login page, it is passed into the context variable, 
     # and used in the html to run the correct code.
@@ -133,7 +139,7 @@ def logout_user(request):
     logout(request)
     return redirect('home')
 
-
+# Function for rendering the login_register.html template, handling the registration of a new user
 def register_page(request):
     # else is used in the html, so no need for a page variable here. 
     #form = UserCreationForm()
@@ -167,7 +173,7 @@ def register_page(request):
     context = {'form' : form}
     return render(request,'base/login_register.html', context)
     
-
+# Function for rendering the view_subjects.html template, which displays all the subjects in the system.
 @login_required
 @require_GET
 def view_subjects(request):
@@ -176,6 +182,8 @@ def view_subjects(request):
     return render(request,'base/view_subjects.html', context)
 
 
+# Function for rendering the view_projects.html template, 
+# which displays all the projects in the system that the current user is apart of.
 @login_required
 @require_GET
 def view_projects(request):
@@ -191,7 +199,7 @@ def view_projects(request):
     context = {'projects': projects}
     return render(request, 'base/view_projects.html', context)
     
-
+# Function for rendering the view_files.html template, which displays all the files imported by user. 
 @login_required
 @require_GET
 def view_files(request):
@@ -205,7 +213,8 @@ def view_files(request):
     return render(request, 'base/view_files.html', context)
 
 
-# Function handles creation of new projects with specified users and subjects.
+# Function for rendering the add_project.html template, 
+# which handles creation of new projects with specified users and subjects.
 @login_required  # Decorator to ensure only authenticated users can access this function.
 def add_project(request):
     # Check if the request method is POST, indicating form submission.
@@ -241,7 +250,8 @@ def add_project(request):
         # Render the add project page with lists of users and subjects for the form.
         return render(request, 'base/add_project.html', {'users': users, 'subjects': subjects})
 
-# Function for editing a project, allowing the user to add/remove other users and subjects.
+# Function for rendering the edit_project.html template, 
+# handles editing a project, allowing the user to add/remove other users and subjects.
 @login_required
 def edit_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
