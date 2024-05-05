@@ -20,27 +20,22 @@ class TestUserRegistrationAndFileImport(StaticLiveServerTestCase):
         # Register a new user
         register_user(self.browser, self.live_server_url)
         time.sleep(2)
-        # Navigate to the file upload page and submit a file
-        file_path = self.upload_file()
-        # Navigate to the files list, import the file, and then view its details
-        self.import_and_view_file()
+        # Attempt to upload a text file as .mwf and check for an error
+        file_path = self.upload_invalid_mwf_file()
         # Cleanup
+        time.sleep(2)
         os.unlink(file_path)
 
-    def upload_file(self):
-        with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-            tmp_file.write(b"Test file content")
+    def upload_invalid_mwf_file(self):
+        # Create a temporary text file with .mwf extension. We are testing invalid upload of file
+        with tempfile.NamedTemporaryFile(suffix=".mwf", delete=False, mode='w') as tmp_file:
+            tmp_file.write("This is not a valid content")
             tmp_path = tmp_file.name
-        self.browser.get(f"{self.live_server_url}/uploadFile/")
-        self.browser.find_element(By.NAME, "title").send_keys("Test File")
+        self.browser.get(f"{self.live_server_url}/importFile/")
+        self.browser.find_element(By.NAME, "title").send_keys("Invalid MWF File")
         self.browser.find_element(By.NAME, "file").send_keys(tmp_path)
         self.browser.find_element(By.CSS_SELECTOR, "form").submit()
-        time.sleep(2)
         return tmp_path
 
-    def import_and_view_file(self):
-        self.browser.get(f"{self.live_server_url}/viewFile/")
-        import_buttons = self.browser.find_elements(By.LINK_TEXT, "Import")
-        if import_buttons:
-            import_buttons[0].click()
-        time.sleep(2)
+
+

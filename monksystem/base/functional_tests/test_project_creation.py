@@ -21,8 +21,11 @@ class TestProjectCreationAndView(StaticLiveServerTestCase):
         time.sleep(2)
         # Create a new project and add self as the user
         self.create_project("Test REK", "Test Description")
+        # View, edit and update project
+        self.edit_and_update_project()
+        # Leave project
+        self.leave_project()
 
-        
     def create_project(self, rek_nummer, description):
         # Navigate to the Add Project page
         self.browser.get(f"{self.live_server_url}/addProject/")
@@ -39,9 +42,19 @@ class TestProjectCreationAndView(StaticLiveServerTestCase):
         submit_button.click()
         time.sleep(2)  # Wait for the submission to process and for the page to load
 
-        
-    def view_project_details(self, rek_nummer):
-        self.browser.get(f"{self.live_server_url}/viewProject/")
-        project_link = self.browser.find_element(By.LINK_TEXT, rek_nummer)
-        project_link.click()
-        time.sleep(2)
+    def edit_and_update_project(self):
+        # Navigate to the edit page of the project
+        self.browser.find_element(By.LINK_TEXT, "Edit Project").click()
+        time.sleep(2)  # Wait for the edit page to load
+
+        # Update project by clicking the appropriate button
+        # We find the button by its text and tag name since it's a <button> and not a <input>
+        update_button = self.browser.find_element(By.XPATH, "//button[text()='Update Project']")
+        update_button.click()
+        time.sleep(2)  # Wait for the update to process
+
+
+    def leave_project(self):
+        # Click on leave project
+        self.browser.find_element(By.LINK_TEXT, "Leave Project").click()
+        time.sleep(2)  # Wait for the leave process to complete

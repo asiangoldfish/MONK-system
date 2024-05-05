@@ -11,18 +11,16 @@ urlpatterns = [
     path('logout/', views.logoutUser, name = "logout"),
     path('register/', views.registerPage, name = "register"),
 
+    path('file/<int:file_id>/', views.file, name='file'),    
     path('viewFile/', views.viewFile, name='viewFile'),    
     path('importFile/', views.importFile, name='importFile'),
     path('importMultipleFiles/', views.importMultipleFiles, name='importMultipleFiles'),
-
-    path('file/<int:file_id>/', views.file, name='file'),    
-    #path('import/<int:file_id>/', views.importFile, name='importFile'),
 
     path('user/<str:pk>', views.user, name="user"),
 
     path('subject/<str:pk>', views.subject, name="subject"),
     path('viewSubject/', views.viewSubject, name = "viewSubject"),
-    path('addSubject/', views.addSubject, name = "addSubject"),
+    #path('addSubject/', views.addSubject, name = "addSubject"),
 
     path('project/<str:pk>', views.project, name="project"),
     path('viewProject/', views.viewProject, name = "viewProject"),
