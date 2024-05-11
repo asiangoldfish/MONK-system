@@ -1,3 +1,6 @@
 __pycache__/
 db.sqlite3
 nihon_kohden_files/
+env/
+htmlcov/
+.coverage

@@ -3,21 +3,31 @@ import os
 import pandas as pd
 from datetime import datetime
 import plotly.graph_objects as go
+
 # Django-specific imports for handling web requests and database operations
 from django.db import IntegrityError
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, HttpResponseBadRequest
+from django.http import (
+    HttpResponse,
+    HttpResponseForbidden,
+    JsonResponse,
+    HttpResponseBadRequest,
+)
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_GET, require_POST
-from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth import authenticate, login, logout
+
 # Importing functionalities from monklib for handling medical data
 from monklib import get_header, convert_to_csv, Data
+
 # Plotly import for creating subplots in graphs
 from plotly.subplots import make_subplots
+
 # Importing models for the database schema related to the application
 from .models import Subject, UserProfile, Project, File, FileImport
+
 # Forms for handling file import and user registration
 from .forms import FileForm, UserRegistrationForm, FileFieldForm
 
@@ -26,33 +36,37 @@ from .forms import FileForm, UserRegistrationForm, FileFieldForm
 @login_required
 @require_GET
 def home_page(request):
-    return render(request, 'base/home.html')
+    return render(request, "base/home.html")
+
 
 # Function for rendering the subject.html template, which displays details about a subject.
 @login_required
 @require_GET
 def subject(request, pk):
     subject = Subject.objects.get(subject_id=pk)
-    context = {'subject':subject}
-    return render(request, 'base/subject.html', context)
+    context = {"subject": subject}
+    return render(request, "base/subject.html", context)
+
 
 # Function for rendering the user.html template, which displays details about a user.
 @login_required
 @require_GET
 def user(request, pk):
     user = UserProfile.objects.get(id=pk)
-    context = {'user':user}
-    return render(request, 'base/user.html', context)
+    context = {"user": user}
+    return render(request, "base/user.html", context)
+
 
 # Function for rendering the project.html template, which displays the details of a project.
 @login_required
 @require_GET
 def project(request, pk):
     project = Project.objects.get(id=pk)
-    context = {'project':project}
-    return render(request, 'base/project.html', context)
+    context = {"project": project}
+    return render(request, "base/project.html", context)
 
-# Function for handling the rendering of the file.html template, which displays all the details about a file. 
+
+# Function for handling the rendering of the file.html template, which displays all the details about a file.
 @login_required
 def file(request, file_id):
     # Retrieves the file or throws a 404 error if not found.
@@ -63,7 +77,7 @@ def file(request, file_id):
     subjects = Subject.objects.filter(file=file)
     # Find projects that include these subjects
     projects = Project.objects.filter(subjects__in=subjects)
-     # Check if the user is part of any of these projects or has imported the file
+    # Check if the user is part of any of these projects or has imported the file
     user_in_project = projects.filter(users=user_profile).exists()
     user_has_imported = FileImport.objects.filter(file=file, user=user_profile).exists()
 
@@ -72,117 +86,123 @@ def file(request, file_id):
         return HttpResponseForbidden("You do not have permission to view this file.")
 
     # Determine the file type to decide on the display method.
-    is_MFER_file = file.file.name.lower().endswith('.mwf')
-    is_text_file = file.file.name.lower().endswith('.txt')
+    is_MFER_file = file.file.name.lower().endswith(".mwf")
+    is_text_file = file.file.name.lower().endswith(".txt")
     content = None
 
     # Process file content if it is a medical waveform (MFER) file.
     if is_MFER_file:
         try:
-            content = get_header(file.file.path)  
+            content = get_header(file.file.path)
         except Exception as e:
             content = f"Error reading file: {e}"
     # Read the content directly if it's a text file.
     elif is_text_file:
         try:
-            with open(file.file.path, 'r') as f:
+            with open(file.file.path, "r") as f:
                 content = f.read()
         except Exception as e:
             content = f"Error reading file: {e}"
 
     # Build the context with file details and content for rendering.
-    context = {'file': file, 
-               'content': content, 
-               'is_text_file': is_text_file,
-               'is_MFER_file': is_MFER_file}
-    
+    context = {
+        "file": file,
+        "content": content,
+        "is_text_file": is_text_file,
+        "is_MFER_file": is_MFER_file,
+    }
+
     # Render the file view template with the context.
-    return render(request, 'base/file.html', context)
+    return render(request, "base/file.html", context)
 
 
 # Function for rendering the login_register.html template, which handles logging in of users.
 def login_page(request):
-    # sets the variable page to specify that this is a login page, it is passed into the context variable, 
+    # sets the variable page to specify that this is a login page, it is passed into the context variable,
     # and used in the html to run the correct code.
-    page = 'login'
-    # If the user is already logged in and tries to click on the login button again, they will just get redirected to home instead. 
+    page = "login"
+    # If the user is already logged in and tries to click on the login button again, they will just get redirected to home instead.
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect("home")
 
-    # Checks if a POST request was sent. 
-    if request.method == 'POST':
-        # Get the username and password from the data sent in the POST request. 
-        username = request.POST.get('username').lower()
-        password = request.POST.get('password')
-        # Checks if the user exists with a try catch block. 
+    # Checks if a POST request was sent.
+    if request.method == "POST":
+        # Get the username and password from the data sent in the POST request.
+        username = request.POST.get("username").lower()
+        password = request.POST.get("password")
+        # Checks if the user exists with a try catch block.
         try:
             user = User.objects.get(username=username)
         except:
-            messages.error(request, 'User does not exist')
+            messages.error(request, "User does not exist")
         # Gets user object based on username and password.
         # Authenticate method will either give us an error or return back a user that matches the credentials (username and password).
         user = authenticate(request, username=username, password=password)
-        # Logs the user in if there is one, and returns home. 
+        # Logs the user in if there is one, and returns home.
         if user is not None:
             login(request, user)
-            messages.success(request, f'Logged in successfully as {user.username}.') 
-            return redirect('home')
+            messages.success(request, f"Logged in successfully as {user.username}.")
+            return redirect("home")
         else:
-            messages.error(request, 'Username or password does not exist')
-            
-    context = {'page' : page}
-    return render(request, 'base/login_register.html', context)    
+            messages.error(request, "Username or password does not exist")
+
+    context = {"page": page}
+    return render(request, "base/login_register.html", context)
 
 
-# Function for logging out a user. 
+# Function for logging out a user.
 def logout_user(request):
     logout(request)
-    return redirect('home')
+    return redirect("home")
+
 
 # Function for rendering the login_register.html template, handling the registration of a new user
 def register_page(request):
-    # else is used in the html, so no need for a page variable here. 
-    #form = UserCreationForm()
+    # else is used in the html, so no need for a page variable here.
+    # form = UserCreationForm()
     form = UserRegistrationForm()
 
     # Check if method is a POST request
-    if request.method == 'POST':
-        #form = UserCreationForm(request.POST) # passes in the data: username and password into user creation form
+    if request.method == "POST":
+        # form = UserCreationForm(request.POST) # passes in the data: username and password into user creation form
         form = UserRegistrationForm(request.POST)
 
         # Checks if the form is valid
         if form.is_valid():
-            user = form.save(commit=False) # saving the form, freezing it in time. 
+            user = form.save(commit=False)  # saving the form, freezing it in time.
             # If the form is valid, the user is created and we want to be able to access it right away. This is why we set commit = False
-            user.username = user.username.lower() # Now that the user is created, we can access their credentials, like username and password.
-            # We lowercase the username of the user. 
-            user.save() # saves the user. 
-            
+            user.username = (
+                user.username.lower()
+            )  # Now that the user is created, we can access their credentials, like username and password.
+            # We lowercase the username of the user.
+            user.save()  # saves the user.
+
             # Now, use the extra fields to create a user instance
             UserProfile.objects.create(
                 user=user,
-                name=form.cleaned_data.get('name'),
-                mobile=form.cleaned_data.get('mobile'),
-            ) 
-            
-            login(request, user) # logs the user in.
-            return redirect('home') # sends the user back to the home page.
-        else: 
-            messages.error(request, 'An error occurred during registration')
-            
-    context = {'form' : form}
-    return render(request,'base/login_register.html', context)
-    
+                name=form.cleaned_data.get("name"),
+                mobile=form.cleaned_data.get("mobile"),
+            )
+
+            login(request, user)  # logs the user in.
+            return redirect("home")  # sends the user back to the home page.
+        else:
+            messages.error(request, "An error occurred during registration")
+
+    context = {"form": form}
+    return render(request, "base/login_register.html", context)
+
+
 # Function for rendering the view_subjects.html template, which displays all the subjects in the system.
 @login_required
 @require_GET
 def view_subjects(request):
     subjects = Subject.objects.all()
-    context = {'subjects' : subjects}
-    return render(request,'base/view_subjects.html', context)
+    context = {"subjects": subjects}
+    return render(request, "base/view_subjects.html", context)
 
 
-# Function for rendering the view_projects.html template, 
+# Function for rendering the view_projects.html template,
 # which displays all the projects in the system that the current user is apart of.
 @login_required
 @require_GET
@@ -195,35 +215,38 @@ def view_projects(request):
     except UserProfile.DoesNotExist:
         # If the user does not have an associate instance, return an empty project list
         projects = Project.objects.none()
-    
-    context = {'projects': projects}
-    return render(request, 'base/view_projects.html', context)
-    
-# Function for rendering the view_files.html template, which displays all the files imported by user. 
+
+    context = {"projects": projects}
+    return render(request, "base/view_projects.html", context)
+
+
+# Function for rendering the view_files.html template, which displays all the files imported by user.
 @login_required
 @require_GET
 def view_files(request):
-    try: 
+    try:
         user_profile = request.user.userprofile
         # Only include files with successful subject creation or another success indicator
-        files = File.objects.filter(fileimport__user=user_profile, subjects__isnull=False)
+        files = File.objects.filter(
+            fileimport__user=user_profile, subjects__isnull=False
+        )
     except UserProfile.DoesNotExist:
         files = File.objects.none()
-    context = {'files': files}
-    return render(request, 'base/view_files.html', context)
+    context = {"files": files}
+    return render(request, "base/view_files.html", context)
 
 
-# Function for rendering the add_project.html template, 
+# Function for rendering the add_project.html template,
 # which handles creation of new projects with specified users and subjects.
 @login_required  # Decorator to ensure only authenticated users can access this function.
 def add_project(request):
     # Check if the request method is POST, indicating form submission.
     if request.method == "POST":
         # Retrieve data from the POST request for new project creation.
-        rekNummer = request.POST.get('rekNummer')
-        description = request.POST.get('description')
-        user_ids = request.POST.getlist('users')
-        subject_ids = request.POST.getlist('subjects')
+        rekNummer = request.POST.get("rekNummer")
+        description = request.POST.get("description")
+        user_ids = request.POST.getlist("users")
+        subject_ids = request.POST.getlist("subjects")
 
         # Create a new project instance with the provided rekNummer and description.
         project = Project.objects.create(rekNummer=rekNummer, description=description)
@@ -232,8 +255,7 @@ def add_project(request):
 
         # Filter subjects that have been linked to the specified users and set these subjects for the project.
         valid_subjects = Subject.objects.filter(
-            id__in=subject_ids,
-            file__fileimport__user__id__in=user_ids
+            id__in=subject_ids, file__fileimport__user__id__in=user_ids
         )
         project.subjects.set(valid_subjects)
 
@@ -246,28 +268,35 @@ def add_project(request):
         # Retrieve all users to display in the user selection part of the form.
         users = UserProfile.objects.all()
         # Retrieve only those subjects that are linked to files imported by the logged-in user.
-        subjects = Subject.objects.filter(file__fileimport__user=request.user.userprofile)
+        subjects = Subject.objects.filter(
+            file__fileimport__user=request.user.userprofile
+        )
         # Render the add project page with lists of users and subjects for the form.
-        return render(request, 'base/add_project.html', {'users': users, 'subjects': subjects})
+        return render(
+            request, "base/add_project.html", {"users": users, "subjects": subjects}
+        )
 
-# Function for rendering the edit_project.html template, 
+
+# Function for rendering the edit_project.html template,
 # handles editing a project, allowing the user to add/remove other users and subjects.
 @login_required
 def edit_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     user_profile = request.user.userprofile
 
-    if request.method == 'POST':
-        user_ids = request.POST.getlist('users')
-        new_subject_ids = set(map(int, request.POST.getlist('subjects')))
+    if request.method == "POST":
+        user_ids = request.POST.getlist("users")
+        new_subject_ids = set(map(int, request.POST.getlist("subjects")))
 
         # Fetch existing subjects in the project
-        existing_subject_ids = set(project.subjects.values_list('id', flat=True))
+        existing_subject_ids = set(project.subjects.values_list("id", flat=True))
 
         # Get IDs of subjects the current user is allowed to modify
-        allowed_subject_ids = set(Subject.objects.filter(
-            file__fileimport__user=user_profile
-        ).values_list('id', flat=True))
+        allowed_subject_ids = set(
+            Subject.objects.filter(file__fileimport__user=user_profile).values_list(
+                "id", flat=True
+            )
+        )
 
         # Determine which new subjects are valid (must be allowed and new)
         valid_new_subject_ids = new_subject_ids.intersection(allowed_subject_ids)
@@ -276,7 +305,9 @@ def edit_project(request, project_id):
         updated_subject_ids = existing_subject_ids.union(valid_new_subject_ids)
 
         # Remove any unselected subjects that the user is allowed to remove
-        subjects_to_remove = allowed_subject_ids.intersection(existing_subject_ids.difference(new_subject_ids))
+        subjects_to_remove = allowed_subject_ids.intersection(
+            existing_subject_ids.difference(new_subject_ids)
+        )
         final_subject_ids = updated_subject_ids.difference(subjects_to_remove)
 
         project.users.set(UserProfile.objects.filter(id__in=user_ids))
@@ -284,30 +315,30 @@ def edit_project(request, project_id):
 
         project.save()
         messages.success(request, "Project updated successfully.")
-        return redirect('view_projects')
+        return redirect("view_projects")
     else:
         # Show all users and subjects for admin or relevant subjects for regular users
-        users = UserProfile.objects.all()  # or filter based on some admin role if needed
+        users = (
+            UserProfile.objects.all()
+        )  # or filter based on some admin role if needed
         subjects = Subject.objects.filter(
-            id__in=project.subjects.values_list('id', flat=True) | 
-            Subject.objects.filter(file__fileimport__user=user_profile).values_list('id', flat=True)
+            id__in=project.subjects.values_list("id", flat=True)
+            | Subject.objects.filter(file__fileimport__user=user_profile).values_list(
+                "id", flat=True
+            )
         )
 
-        context = {
-            'project': project,
-            'users': users,
-            'subjects': subjects
-        }
-        return render(request, 'base/edit_project.html', context)
+        context = {"project": project, "users": users, "subjects": subjects}
+        return render(request, "base/edit_project.html", context)
 
 
 # Function that allows user to leave a project which they are currently apart of.
 def leave_project(request, project_id):
     # Retrieve the project by ID or return a 404 if it does not exist.
     project = get_object_or_404(Project, id=project_id)
-    # Access the user's profile from the User model, a one-to-one relationship.    
+    # Access the user's profile from the User model, a one-to-one relationship.
     user_profile = request.user.userprofile
-    
+
     # Check if the user's profile is in the list of users associated with the project.
     if user_profile in project.users.all():
         # If the user is part of the project, remove them.
@@ -319,8 +350,9 @@ def leave_project(request, project_id):
     else:
         # If the user is not part of the project, send an error message.
         messages.error(request, "You are not a member of this project.")
-    # Redirect the user to the project view page, regardless of the outcome.    
-    return redirect('view_projects')
+    # Redirect the user to the project view page, regardless of the outcome.
+    return redirect("view_projects")
+
 
 # Function for importing a file.
 @login_required
@@ -328,25 +360,27 @@ def import_file(request):
     # Initialize a new form instance for file uploads.
     form = FileForm()
     # Check if the form has been submitted with file data.
-    if request.method == 'POST' and 'submitted' in request.POST:
+    if request.method == "POST" and "submitted" in request.POST:
         # Populate the form with data from the request.
         form = FileForm(request.POST, request.FILES)
         # Validate the form data, specifically checking for the file.
         if form.is_valid():
             # Retrieve the file from the form.
-            imported_file = request.FILES['file']
+            imported_file = request.FILES["file"]
 
             # Check if the file is in the required .mwf format.
-            if not imported_file.name.lower().endswith('.mwf'):
+            if not imported_file.name.lower().endswith(".mwf"):
                 messages.error(request, "Only .MWF files are allowed.")
-                return render(request, 'base/import_file.html', {'form': form})
+                return render(request, "base/import_file.html", {"form": form})
 
             # Try to fetch user profile to link the file import.
             try:
                 user_profile = request.user.userprofile
             except UserProfile.DoesNotExist:
                 messages.error(request, "You are not registered as a regular user.")
-                return redirect('view_files')  # Redirect to a view where users can create/update their profile
+                return redirect(
+                    "view_files"
+                )  # Redirect to a view where users can create/update their profile
 
             # Save the file instance created from the form.
             new_file = form.save()
@@ -356,11 +390,12 @@ def import_file(request):
             process_and_create_subject(new_file, request)
 
             messages.success(request, "File imported and processed successfully.")
-            return redirect('view_files')
+            return redirect("view_files")
         else:
-            messages.error(request, "Please correct the error below.")
+            messages.error(request, "Please choose title and upload .MWF files only")
     # Render the import file page with the form.
-    return render(request, 'base/import_file.html', {'form': form})
+    return render(request, "base/import_file.html", {"form": form})
+
 
 # Function for importing multiple files
 @login_required
@@ -368,19 +403,21 @@ def import_multiple_files(request):
     # Initialize the form designed to handle multiple file uploads.
     form = FileFieldForm()
     # Handle the POST request with file data.
-    if request.method == 'POST':
+    if request.method == "POST":
         # Populate the form with POST data.
         form = FileFieldForm(request.POST, request.FILES)
         # Check if the form is valid.
         if form.is_valid():
             # Retrieve a list of files from the form data.
-            files = request.FILES.getlist('file_field')
+            files = request.FILES.getlist("file_field")
             valid_files = []
             # Validate each file, checking if they are in the .mwf format.
             for f in files:
                 # Check if any file is NOT a .mwf file
-                if not f.name.lower().endswith('.mwf'):
-                    messages.error(request, "Only .MWF files are allowed. Invalid file: " + f.name)
+                if not f.name.lower().endswith(".mwf"):
+                    messages.error(
+                        request, "Only .MWF files are allowed. Invalid file: " + f.name
+                    )
                     continue  # Skip adding this file to the list
                 valid_files.append(f)
 
@@ -390,7 +427,9 @@ def import_multiple_files(request):
                     user_profile = request.user.userprofile
                 except UserProfile.DoesNotExist:
                     messages.error(request, "You are not registered as a regular user.")
-                    return redirect('view_files')  # Redirect to a view where users can create/update their profile
+                    return redirect(
+                        "view_files"
+                    )  # Redirect to a view where users can create/update their profile
 
                 for f in valid_files:
                     base_title = os.path.splitext(f.name)[0]
@@ -398,68 +437,80 @@ def import_multiple_files(request):
                     FileImport.objects.create(user=user_profile, file=new_file)
                     process_and_create_subject(new_file, request)
 
-                messages.success(request, "All valid .MWF files imported and processed successfully.")
+                messages.success(
+                    request, "All valid .MWF files imported and processed successfully."
+                )
             else:
                 messages.error(request, "No valid .MWF files provided.")
-            return redirect('view_files')
+            return redirect("view_files")
         else:
-            messages.error(request, "Please correct the error below.")
+            messages.error(request, "Only .MWF files allowed.")
     # Render the import multiple files page with the form.
     return render(request, "base/import_file.html", {"form": form})
 
-# Functino for processing and creating a subject from file upload.
+
+# Function for processing and creating a subject from file upload.
 def process_and_create_subject(file, request):
     # Check if the uploaded file is a .MWF file, which is required for this process.
-    if file.file.name.lower().endswith('.mwf'):
+    if file.file.name.lower().endswith(".mwf"):
         try:
             # Use monklib's get_header function to extract header information from the file.
             header = get_header(file.file.path)
             # Extract necessary details from the header for creating a Subject.
-            subject_id = getattr(header, 'patientID', None)
-            time_stamp = getattr(header, 'measurementTimeISO', None)
-            subject_name = getattr(header, 'patientName', "Unknown")
-            subject_sex = getattr(header, 'patientSex', "Unknown")
-            birth_date_str = getattr(header, 'birthDateISO', None)
+            subject_id = getattr(header, "patientID", None)
+            time_stamp = getattr(header, "measurementTimeISO", None)
+            subject_name = getattr(header, "patientName", "Unknown")
+            subject_sex = getattr(header, "patientSex", "Unknown")
+            birth_date_str = getattr(header, "birthDateISO", None)
             birth_date = None
             # Convert the birth date string to a date object, handling cases where the date might be 'N/A' or malformed.
-            if birth_date_str and birth_date_str != 'N/A':
+            if birth_date_str and birth_date_str != "N/A":
                 try:
-                    birth_date = datetime.strptime(birth_date_str, '%Y-%m-%d').date()
+                    birth_date = datetime.strptime(birth_date_str, "%Y-%m-%d").date()
                 except ValueError:
                     # Handle the case where the birth date string is not a valid date.
                     pass
 
             # Create a new Subject instance and save it to the database.
             Subject.objects.create(
-                subject_id=time_stamp + " " + subject_id, 
+                subject_id=time_stamp + " " + subject_id,
                 name=subject_name,
                 gender=subject_sex,
                 birth_date=birth_date,
-                file=file
+                file=file,
             )
             # Send a success message back to the user.
             messages.success(request, f"Subject created for file {file.title}")
         except IntegrityError:
             # Handle the case where the subject might already exist in the database, preventing duplicate entries.
-            messages.info(request, f"This subject already exists. No duplicate created for file {file.title}.")
+            messages.info(
+                request,
+                f"This subject already exists. No duplicate created for file {file.title}.",
+            )
         except Exception as e:
-            # General error handling if something goes wrong during the subject creation process.            
-            messages.error(request, f"Failed to process file {file.title} for subject creation: {str(e)}")
+            # General error handling if something goes wrong during the subject creation process.
+            messages.error(
+                request,
+                f"Failed to process file {file.title} for subject creation: {str(e)}",
+            )
     else:
         # If the file is not an .MWF file, inform the user that no subject will be created.
-        messages.info(request, f"File {file.title} imported but no subject created due to file type.")
+        messages.info(
+            request,
+            f"File {file.title} imported but no subject created due to file type.",
+        )
 
 
 # Function to download a file in CSV format
 @require_POST
 def download_format_csv(request, file_id):
     # Check for POST request to ensure that the request is a result of form submission
-    if request.method == 'POST':
+    if request.method == "POST":
         # Retrieve the list of channels selected by the user from the form
-        selected_channels = request.POST.getlist('channels')
+        selected_channels = request.POST.getlist("channels")
         # Retrieve start and end times from the form, converting to float or defaulting to 0
-        start_time_str = request.POST.get('start_time')
-        end_time_str = request.POST.get('end_time')
+        start_time_str = request.POST.get("start_time")
+        end_time_str = request.POST.get("end_time")
         start_seconds = float(start_time_str) if start_time_str else 0.0
         end_seconds = float(end_time_str) if end_time_str else 0.0
 
@@ -479,17 +530,20 @@ def download_format_csv(request, file_id):
             data.setIntervalSelection(start_seconds, end_seconds)
 
         # Define the output path for the CSV and use monklib to write the data to CSV
-        output_path = file.file.path.rsplit('.', 1)[0] + '.csv'
+        output_path = file.file.path.rsplit(".", 1)[0] + ".csv"
         data.writeToCsv(output_path)
 
         # Open the CSV file, read its content and prepare a HTTP response to send the file to the user
-        with open(output_path, 'rb') as f:
-            response = HttpResponse(f.read(), content_type='text/csv')
-            response['Content-Disposition'] = f'attachment; filename="{os.path.basename(output_path)}"'
+        with open(output_path, "rb") as f:
+            response = HttpResponse(f.read(), content_type="text/csv")
+            response["Content-Disposition"] = (
+                f'attachment; filename="{os.path.basename(output_path)}"'
+            )
             return response
     # If the request is not POST, return a forbidden error response
     else:
         return HttpResponseForbidden("Invalid request")
+
 
 # Function to download the header information of an MFER file
 def download_mfer_header(request, file_id):
@@ -497,10 +551,10 @@ def download_mfer_header(request, file_id):
     file_instance = get_object_or_404(File, id=file_id)
     # Get the path of the file on the server
     file_path = file_instance.file.path
-    
+
     try:
         # Check if anonymization is requested via POST parameters
-        if 'anonymize' in request.POST and request.POST['anonymize'] == 'true':
+        if "anonymize" in request.POST and request.POST["anonymize"] == "true":
             # Anonymize the data if requested
             anonymized_file_path = anonymize_data(file_path)
             # Get the header information from the anonymized file using function from monklib
@@ -508,45 +562,53 @@ def download_mfer_header(request, file_id):
         else:
             # Get the header information from the original file using function from monklib
             header_info = get_header(file_path)
-        
+
         # Prepare a response with the header information as plain text
-        response = HttpResponse(header_info, content_type='text/plain')
+        response = HttpResponse(header_info, content_type="text/plain")
         # Suggest a filename for the header info when downloaded
-        response['Content-Disposition'] = f'attachment; filename="{file_instance.title}_header.txt"'
+        response["Content-Disposition"] = (
+            f'attachment; filename="{file_instance.title}_header.txt"'
+        )
         return response
     # Return an error message if something goes wrong
     except Exception as e:
-        return HttpResponse(f"An error occurred while retrieving the header: {str(e)}", status=500)
+        return HttpResponse(
+            f"An error occurred while retrieving the header: {str(e)}", status=500
+        )
 
-# Function for downloading the .MWF file 
+
+# Function for downloading the .MWF file
 def download_mwf(request, file_id):
     # Retrieve the file object, or return a 404 error if it doesn't exist
     file_instance = get_object_or_404(File, id=file_id)
 
     # Verify that the file is of the .mwf format, otherwise return an error
-    if not file_instance.file.name.lower().endswith('.mwf'):
+    if not file_instance.file.name.lower().endswith(".mwf"):
         return HttpResponseBadRequest("Unsupported file format.")
 
     try:
         # Get the path of the file on the server
         file_path = file_instance.file.path
         # Check if anonymization is requested via GET parameters
-        if request.GET.get('anonymize') == 'true':
+        if request.GET.get("anonymize") == "true":
             # Anonymize the data if requested
             file_path = anonymize_data(file_path)
 
         # Open and read the content of the file
-        with open(file_path, 'rb') as file:
+        with open(file_path, "rb") as file:
             content = file.read()
             # Prepare a response with the file content as plain text
             response = HttpResponse(content, content_type="application/octet-stream")
             # Suggest a filename for the raw data when downloaded, ensuring it uses the .mwf extension
-            response['Content-Disposition'] = f'attachment; filename="{file_instance.title}.mwf"'
+            response["Content-Disposition"] = (
+                f'attachment; filename="{file_instance.title}.mwf"'
+            )
             return response
     # Return an error message if something goes wrong
     except Exception as e:
-        return HttpResponse(f"An error occurred while reading the file: {str(e)}", status=500)
-
+        return HttpResponse(
+            f"An error occurred while reading the file: {str(e)}", status=500
+        )
 
 
 # Function to anonymize data within an MFER file
@@ -557,50 +619,57 @@ def anonymize_data(file_path):
         # Anonymize the data using the provided method from monklib's anonymization script
         data.anonymize()
         # Define the path for the anonymized data
-        anonymized_path = file_path.rsplit('.', 1)[0] + '_anonymized.mwf'
+        anonymized_path = file_path.rsplit(".", 1)[0] + "_anonymized.mwf"
         # Write the anonymized data to binary in a new file, using monklibs functionality
         data.writeToBinary(anonymized_path)
-        # Return the path to the anonymized file        
+        # Return the path to the anonymized file
         return anonymized_path
     # Raise an exception if anonymization fails
     except Exception as e:
         raise Exception(f"Failed to anonymize and save the file: {str(e)}")
+
 
 # Function to plot graphs based on CSV data
 def plot_graph(request, file_id):
     try:
         # Retrieve parameters from the GET request
         # Determine if a combined graph is requested
-        combined = request.GET.get('combined', 'false').lower() == 'true'
+        combined = request.GET.get("combined", "false").lower() == "true"
         # Set the maximum number of rows to read from the CSV
-        rows = int(request.GET.get('rows', 10000))        
+        rows = int(request.GET.get("rows", 10000))
         # Retrieve and handle the file object
         file_instance = get_object_or_404(File, id=file_id)
         # Define the CSV path for the data file
-        csv_path = file_instance.file.path.rsplit('.', 1)[0] + '.csv'
+        csv_path = file_instance.file.path.rsplit(".", 1)[0] + ".csv"
         # Convert the data file to CSV format using monklib's functionality
-        convert_to_csv(file_instance.file.path, csv_path)  
+        convert_to_csv(file_instance.file.path, csv_path)
         # Load and prepare the data from the CSV
         df = pd.read_csv(csv_path, nrows=rows)
-        df = df.apply(pd.to_numeric, errors='coerce').interpolate().dropna()
+        df = df.apply(pd.to_numeric, errors="coerce").interpolate().dropna()
         # Generate the plot
         if combined:
             # Initialize a figure for plotting
             fig = go.Figure()
             for column in df.columns:
-                fig.add_trace(go.Scatter(x=df.index, y=df[column], mode='lines', name=column))
-            fig.update_layout(title='Combined Graph', xaxis_title='Index', yaxis_title='Values')
+                fig.add_trace(
+                    go.Scatter(x=df.index, y=df[column], mode="lines", name=column)
+                )
+            fig.update_layout(
+                title="Combined Graph", xaxis_title="Index", yaxis_title="Values"
+            )
         else:
             fig = make_subplots(rows=len(df.columns), cols=1, shared_xaxes=True)
             # Add traces to the figure based on the CSV columns
             for i, column in enumerate(df.columns):
-                fig.add_trace(go.Scatter(x=df.index, y=df[column], mode='lines', name=column), row=i + 1, col=1)
-            fig.update_layout(title='Multiple Subplots Graph')
+                fig.add_trace(
+                    go.Scatter(x=df.index, y=df[column], mode="lines", name=column),
+                    row=i + 1,
+                    col=1,
+                )
+            fig.update_layout(title="Multiple Subplots Graph")
 
         # Convert the plot to HTML and send it back
         graph_html = fig.to_html(full_html=False, include_plotlyjs=True)
-        return JsonResponse({'graph_html': graph_html})
+        return JsonResponse({"graph_html": graph_html})
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-
+        return JsonResponse({"error": str(e)}, status=500)

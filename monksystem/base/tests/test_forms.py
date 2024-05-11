@@ -5,7 +5,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 class TestForms(TestCase):
 
     def test_file_form_valid_data(self):
-        file = SimpleUploadedFile(name='test_file.txt', content=b'Some file content', content_type='text/plain')
+        file = SimpleUploadedFile(name='test_file.mwf', content=b'Some file content', content_type='application/octet-stream')
         form = FileForm(data={'title': 'Test File'}, files={'file': file})
         self.assertTrue(form.is_valid())
 

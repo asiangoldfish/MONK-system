@@ -89,7 +89,7 @@ class TestViews(TestCase):
                 'submitted': 'true'
             }
             response = self.client.post(reverse('import_file'), data=post_data)
-            self.assertEqual(response.status_code, 302)  # Expect redirect after file upload
+            self.assertEqual(response.status_code, 200)  
 
     def test_view_projects_auth(self):
         self.client.login(username='testuser', password='password123')

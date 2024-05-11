@@ -46,7 +46,6 @@ class TestProjectCreationAndView(StaticLiveServerTestCase):
         # Navigate to the edit page of the project
         self.browser.find_element(By.LINK_TEXT, "Edit Project").click()
         time.sleep(2)  # Wait for the edit page to load
-
         # Update project by clicking the appropriate button
         # We find the button by its text and tag name since it's a <button> and not a <input>
         update_button = self.browser.find_element(By.XPATH, "//button[text()='Update Project']")
