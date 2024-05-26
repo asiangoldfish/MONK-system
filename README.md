@@ -12,7 +12,7 @@ git clone https://github.com/MONK-system/system.git
 
 ## Install the requirements:
 
-View the requirmentx.txt file in the repository. 
+View the requirements.txt file in the monksystem folder. 
 
 Check out https://github.com/MONK-system/library for installation prerequisistes.
 
