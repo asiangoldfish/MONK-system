@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import platform
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -77,10 +79,38 @@ WSGI_APPLICATION = 'monksystem.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+def get_data_dir(app_name: str = "myapp") -> Path:
+    """Get OS-dependent data directory
+
+    For Windows: APPDATA
+    For OSX: $HOME/Library/Application\ Support
+    For Linux: $XDG_DATA_HOME
+
+    Args:
+        app_name (str, optional): application name. Defaults to "myapp".
+
+    Returns:
+        Path: absolute path to the application directory.
+    """
+    system = platform.system()
+
+    if system == "Windows":
+        base = Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming"))
+    elif system == "Darwin":
+        base = Path.home() / "Library" / "Application Support"
+    else:
+        base = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share"))
+
+    data_dir = base / app_name
+    data_dir.mkdir(parents=True, exist_ok=True)
+    return data_dir
+
+sqlite_path = get_data_dir("monk-backend") / "db.sqlite3"  # Replace "myapp" with your app name
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': sqlite_path,
     }
 }
 
